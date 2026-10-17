@@ -13,7 +13,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link to="/" className="font-display text-2xl font-semibold text-foreground">
-          CuddleKids<span className="text-primary">.</span>
+          cuddlekids.lb
         </Link>
         <nav className="flex items-center gap-2 text-sm">
           {isAdmin && (
