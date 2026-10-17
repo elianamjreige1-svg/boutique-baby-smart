@@ -40,7 +40,7 @@ function ProductPage() {
       <div className="flex flex-col gap-5">
         <h1 className="text-4xl font-semibold">{p.name}</h1>
         <p className="text-sm text-muted-foreground">
-          {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "For boys" : "For girls"} · Age {p.age_group}
+          {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "For boys" : "For girls"} · Age {p.sizes.length ? p.sizes.join(", ") : p.age_group}
         </p>
         <p className="text-2xl font-semibold text-primary">{money(Number(p.price))}</p>
         <p className="text-muted-foreground">{p.description}</p>
@@ -64,7 +64,6 @@ function ProductPage() {
           <Button variant="outline" size="icon" onClick={() => setQty(Math.max(1, qty - 1))}>−</Button>
           <span className="w-8 text-center">{qty}</span>
           <Button variant="outline" size="icon" onClick={() => setQty(Math.min(p.stock, qty + 1))}>+</Button>
-          <span className="text-sm text-muted-foreground">{p.stock} in stock</span>
         </div>
         <Button
           size="lg"

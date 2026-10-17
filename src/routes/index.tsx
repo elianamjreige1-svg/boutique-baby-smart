@@ -42,7 +42,7 @@ function Shop() {
     (p) =>
       (!cat || p.category_id === cat) &&
       (!gender || p.gender === gender || p.gender === "unisex") &&
-      (!age || p.age_group === age),
+      (!age || p.age_group === age || p.sizes.includes(age)),
   );
 
   return (
