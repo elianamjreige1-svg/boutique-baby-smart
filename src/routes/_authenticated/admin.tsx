@@ -215,7 +215,7 @@ function Products() {
       stock: parseInt(f.stock) || 0,
       active: f.active,
       gender: f.gender,
-      age_group: ages[0],
+      age_group: ages[0] ?? "0-3m",
     };
     const { error } = editing
       ? await supabase.from("products").update(row).eq("id", editing.id)
