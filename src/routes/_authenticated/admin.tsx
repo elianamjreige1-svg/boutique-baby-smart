@@ -1,3 +1,5 @@
+import { Checkbox } from "@/components/ui/checkbox";
+import { PHOTO_URL_PREFIX, photoPath, photoToDeleteOnSave } from "@/lib/product-photo";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
@@ -91,7 +93,7 @@ function useCategories() {
 
 /* ---------------- Products ---------------- */
 type Product = Tables<"products">;
-const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", sizes: "", stock: "0", active: true, gender: "unisex", age_group: "0-3m" };
+const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", stock: "0", active: true, gender: "unisex", ages: [] as string[] };
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
 const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "10-12y"];
 
@@ -130,7 +132,7 @@ function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url
     const path = `${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("product-images").upload(path, pending.opt.blob, { contentType: pending.opt.type, cacheControl: "31536000" });
     if (!error) {
-      onChange(supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl);
+      onChange(PHOTO_URL_PREFIX + path);
     } else if (/bucket not found/i.test(error.message)) {
       // File storage not available yet: keep the optimized photo inside the product record.
       onChange(await blobToDataUrl(pending.opt.blob));
@@ -196,27 +198,31 @@ function Products() {
   const openNew = () => { setEditing(null); setF(emptyProduct); setOpen(true); };
   const openEdit = (p: Product) => {
     setEditing(p);
-    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", category_id: p.category_id ?? "", sizes: p.sizes.join(", "), stock: String(p.stock), active: p.active, gender: p.gender, age_group: p.age_group });
+    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", category_id: p.category_id ?? "", stock: String(p.stock), active: p.active, gender: p.gender, ages: p.sizes.length ? p.sizes.filter((s) => AGE_OPTIONS.includes(s)) : [p.age_group] });
     setOpen(true);
   };
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (f.ages.length === 0) { toast.error("Please check at least one age"); return; }
+    const ages = AGE_OPTIONS.filter((a) => f.ages.includes(a));
     const row = {
       name: f.name.trim(),
       description: f.description,
       price: Number(f.price) || 0,
       image_url: f.image_url.trim() || null,
       category_id: f.category_id || null,
-      sizes: f.sizes.split(",").map((s) => s.trim()).filter(Boolean),
+      sizes: ages,
       stock: parseInt(f.stock) || 0,
       active: f.active,
       gender: f.gender,
-      age_group: f.age_group,
+      age_group: ages[0],
     };
     const { error } = editing
       ? await supabase.from("products").update(row).eq("id", editing.id)
       : await supabase.from("products").insert(row);
     if (error) { toast.error(error.message); return; }
+    const old = editing ? photoToDeleteOnSave(editing.image_url, row.image_url) : null;
+    if (old) await supabase.storage.from("product-images").remove([old]);
     toast.success("Product saved");
     setOpen(false);
     refresh();
@@ -225,6 +231,8 @@ function Products() {
     if (!confirm(`Delete "${p.name}"?`)) return;
     const { error } = await supabase.from("products").delete().eq("id", p.id);
     if (error) { toast.error(error.message); return; }
+    const photo = photoPath(p.image_url);
+    if (photo) await supabase.storage.from("product-images").remove([photo]);
     toast.success("Deleted");
     refresh();
   };
@@ -285,21 +293,26 @@ function Products() {
                 {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label>For</Label>
-                <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value })}>
-                  {GENDER_OPTIONS.map((g) => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
-                </select>
-              </div>
-              <div className="space-y-1">
-                <Label>Age group</Label>
-                <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.age_group} onChange={(e) => setF({ ...f, age_group: e.target.value })}>
-                  {AGE_OPTIONS.map((a) => <option key={a} value={a}>{a}</option>)}
-                </select>
+            <div className="space-y-1">
+              <Label>For</Label>
+              <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value })}>
+                {GENDER_OPTIONS.map((g) => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label>Ages (customers pick one as size)</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {AGE_OPTIONS.map((a) => (
+                  <label key={a} className="flex items-center gap-2 text-sm">
+                    <Checkbox
+                      checked={f.ages.includes(a)}
+                      onCheckedChange={(v) => setF((cur) => ({ ...cur, ages: v ? [...cur.ages, a] : cur.ages.filter((x) => x !== a) }))}
+                    />
+                    {a}
+                  </label>
+                ))}
               </div>
             </div>
-            <div className="space-y-1"><Label>Sizes (comma separated)</Label><Input placeholder="0-3M, 3-6M" value={f.sizes} onChange={(e) => setF({ ...f, sizes: e.target.value })} /></div>
             <div className="flex items-center gap-2"><Switch checked={f.active} onCheckedChange={(v) => setF({ ...f, active: v })} /><Label>Visible in shop</Label></div>
             <Button type="submit" disabled={busy} className="w-full rounded-full">{busy ? "Finish the photo first…" : "Save"}</Button>
           </form>
