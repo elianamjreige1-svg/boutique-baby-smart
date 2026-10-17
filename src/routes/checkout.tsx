@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Banknote } from "lucide-react";
 import { money, useCart } from "@/lib/cart";
 import { placeOrder } from "@/lib/orders.functions";
+import { checkStock } from "@/lib/stock";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +37,18 @@ function Checkout() {
     e.preventDefault();
     setBusy(true);
     try {
+      const lines = await checkStock(items.map((i) => ({ productId: i.productId, size: i.size })));
+      const problems = items.flatMap((i) => {
+        const l = lines.find((x) => x.productId === i.productId && x.size === i.size);
+        const available = l?.available ?? 0;
+        return i.quantity > available
+          ? [available === 0 ? `${i.name}${i.size ? ` (${i.size})` : ""} is sold out` : `${i.name}${i.size ? ` (${i.size})` : ""}: only ${available} items available`]
+          : [];
+      });
+      if (problems.length) {
+        toast.error("Please update your cart", { description: problems.join("\n"), duration: 8000 });
+        return;
+      }
       const res = await place({
         data: { ...f, items: items.map((i) => ({ productId: i.productId, size: i.size, quantity: i.quantity })) },
       });
