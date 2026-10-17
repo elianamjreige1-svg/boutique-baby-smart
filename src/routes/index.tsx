@@ -31,7 +31,11 @@ function Shop() {
   const [age, setAge] = useState<string | null>(null);
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
-    queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
+    queryFn: async () => {
+      const rows = (await supabase.from("categories").select("*").order("name")).data ?? [];
+      const isAcc = (n: string) => n.toLowerCase().startsWith("accessor");
+      return [...rows.filter((c) => !isAcc(c.name)), ...rows.filter((c) => isAcc(c.name))];
+    },
   });
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
