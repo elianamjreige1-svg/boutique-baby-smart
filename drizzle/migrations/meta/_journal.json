@@ -15,6 +15,13 @@
       "when": 1792254382770,
       "tag": "0001_add_has_admin_function",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792255287335,
+      "tag": "0002_product_size_stock",
+      "breakpoints": true
     }
   ]
 }

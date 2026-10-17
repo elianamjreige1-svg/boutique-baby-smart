@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { money, useCart } from "@/lib/cart";
+import { checkStock } from "@/lib/stock";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/product/$id")({
@@ -20,9 +21,10 @@ export const Route = createFileRoute("/product/$id")({
 
 function ProductPage() {
   const { id } = Route.useParams();
-  const { add } = useCart();
+  const { add, items } = useCart();
   const [size, setSize] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
+  const [adding, setAdding] = useState(false);
   const { data: p, isLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => (await supabase.from("products").select("*").eq("id", id).maybeSingle()).data,
@@ -63,16 +65,31 @@ function ProductPage() {
         <div className="flex items-center gap-3">
           <Button variant="outline" size="icon" onClick={() => setQty(Math.max(1, qty - 1))}>−</Button>
           <span className="w-8 text-center">{qty}</span>
-          <Button variant="outline" size="icon" onClick={() => setQty(Math.min(p.stock, qty + 1))}>+</Button>
+          <Button variant="outline" size="icon" onClick={() => setQty(qty + 1)}>+</Button>
         </div>
         <Button
           size="lg"
           className="rounded-full"
-          disabled={p.stock < 1}
-          onClick={() => {
+          disabled={p.stock < 1 || adding}
+          onClick={async () => {
             if (needsSize && !size) { toast.error("Please choose a size"); return; }
-            add({ productId: p.id, name: p.name, price: Number(p.price), image: p.image_url, size, quantity: qty });
-            toast.success("Added to cart");
+            setAdding(true);
+            try {
+              const [line] = await checkStock([{ productId: p.id, size }]);
+              const available = line?.available ?? 0;
+              const inCart = items.find((i) => i.productId === p.id && i.size === size)?.quantity ?? 0;
+              if (qty + inCart > available) {
+                const left = Math.max(0, available - inCart);
+                toast.error(left === 0 ? (inCart ? `Only ${available} items available, all already in your cart` : "Sold out") : `Only ${left} items available`);
+                return;
+              }
+              add({ productId: p.id, name: p.name, price: Number(p.price), image: p.image_url, size, quantity: qty });
+              toast.success("Added to cart");
+            } catch {
+              toast.error("Could not check stock, please try again");
+            } finally {
+              setAdding(false);
+            }
           }}
         >
           {p.stock < 1 ? "Sold out" : "Add to cart"}

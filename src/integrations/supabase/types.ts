@@ -128,6 +128,7 @@ export type Database = {
           image_url: string | null
           name: string
           price: number
+          size_stock: Json
           sizes: string[]
           stock: number
         }
@@ -142,6 +143,7 @@ export type Database = {
           image_url?: string | null
           name: string
           price?: number
+          size_stock?: Json
           sizes?: string[]
           stock?: number
         }
@@ -156,6 +158,7 @@ export type Database = {
           image_url?: string | null
           name?: string
           price?: number
+          size_stock?: Json
           sizes?: string[]
           stock?: number
         }
@@ -192,6 +195,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_stock: { Args: { _items: Json }; Returns: Json }
       has_admin: { Args: never; Returns: boolean }
       has_role: {
         Args: {
