@@ -93,7 +93,7 @@ function useCategories() {
 
 /* ---------------- Products ---------------- */
 type Product = Tables<"products">;
-const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", stock: "0", active: true, gender: "unisex", ages: [] as string[] };
+const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", active: true, gender: "unisex", ages: [] as string[], qty: {} as Record<string, string> };
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
 const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "10-12y"];
 
@@ -198,13 +198,18 @@ function Products() {
   const openNew = () => { setEditing(null); setF(emptyProduct); setOpen(true); };
   const openEdit = (p: Product) => {
     setEditing(p);
-    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", category_id: p.category_id ?? "", stock: String(p.stock), active: p.active, gender: p.gender, ages: p.sizes.length ? p.sizes.filter((s) => AGE_OPTIONS.includes(s)) : [p.age_group] });
+    const ss = (p.size_stock ?? {}) as Record<string, number>;
+    const qty: Record<string, string> = {};
+    for (const a of AGE_OPTIONS) qty[a] = String(ss[a] ?? 0);
+    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", category_id: p.category_id ?? "", active: p.active, gender: p.gender, ages: p.sizes.length ? p.sizes.filter((s) => AGE_OPTIONS.includes(s)) : [p.age_group], qty });
     setOpen(true);
   };
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (f.ages.length === 0) { toast.error("Please check at least one age"); return; }
     const ages = AGE_OPTIONS.filter((a) => f.ages.includes(a));
+    const size_stock: Record<string, number> = {};
+    for (const a of ages) size_stock[a] = Math.max(0, parseInt(f.qty[a] ?? "0") || 0);
     const row = {
       name: f.name.trim(),
       description: f.description,
@@ -212,7 +217,8 @@ function Products() {
       image_url: f.image_url.trim() || null,
       category_id: f.category_id || null,
       sizes: ages,
-      stock: parseInt(f.stock) || 0,
+      size_stock,
+      stock: Object.values(size_stock).reduce((s, n) => s + n, 0),
       active: f.active,
       gender: f.gender,
       age_group: ages[0] ?? "0-3m",
@@ -261,7 +267,14 @@ function Products() {
                   {p.name}
                 </td>
                 <td className="p-3">{money(Number(p.price))}</td>
-                <td className="p-3">{p.stock}</td>
+                <td className="p-3">
+                  {p.stock}
+                  {p.sizes.length > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      {p.sizes.map((s) => `${s}: ${(p.size_stock as Record<string, number>)?.[s] ?? 0}`).join(" · ")}
+                    </div>
+                  )}
+                </td>
                 <td className="p-3">{p.active ? "Yes" : "No"}</td>
                 <td className="p-3 text-right">
                   <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
@@ -281,10 +294,7 @@ function Products() {
           <form onSubmit={save} className="space-y-3">
             <div className="space-y-1"><Label>Name</Label><Input required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
             <div className="space-y-1"><Label>Description</Label><Textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1"><Label>Price</Label><Input type="number" step="0.01" min="0" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
-              <div className="space-y-1"><Label>Stock</Label><Input type="number" min="0" value={f.stock} onChange={(e) => setF({ ...f, stock: e.target.value })} /></div>
-            </div>
+            <div className="space-y-1"><Label>Price</Label><Input type="number" step="0.01" min="0" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
             <PhotoField value={f.image_url} onChange={(url) => setF((cur) => ({ ...cur, image_url: url }))} onBusy={setBusy} />
             <div className="space-y-1">
               <Label>Category</Label>
@@ -300,16 +310,27 @@ function Products() {
               </select>
             </div>
             <div className="space-y-2">
-              <Label>Ages (customers pick one as size)</Label>
-              <div className="grid grid-cols-3 gap-2">
+              <Label>Ages and quantity per age</Label>
+              <div className="grid grid-cols-2 gap-2">
                 {AGE_OPTIONS.map((a) => (
-                  <label key={a} className="flex items-center gap-2 text-sm">
-                    <Checkbox
-                      checked={f.ages.includes(a)}
-                      onCheckedChange={(v) => setF((cur) => ({ ...cur, ages: v ? [...cur.ages, a] : cur.ages.filter((x) => x !== a) }))}
+                  <div key={a} className="flex items-center gap-2 text-sm">
+                    <label className="flex flex-1 items-center gap-2">
+                      <Checkbox
+                        checked={f.ages.includes(a)}
+                        onCheckedChange={(v) => setF((cur) => ({ ...cur, ages: v ? [...cur.ages, a] : cur.ages.filter((x) => x !== a) }))}
+                      />
+                      {a}
+                    </label>
+                    <Input
+                      type="number"
+                      min="0"
+                      className="h-8 w-20"
+                      aria-label={`Quantity for ${a}`}
+                      disabled={!f.ages.includes(a)}
+                      value={f.qty[a] ?? "0"}
+                      onChange={(e) => setF((cur) => ({ ...cur, qty: { ...cur.qty, [a]: e.target.value } }))}
                     />
-                    {a}
-                  </label>
+                  </div>
                 ))}
               </div>
             </div>
