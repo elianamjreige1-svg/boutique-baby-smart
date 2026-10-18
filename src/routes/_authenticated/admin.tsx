@@ -10,11 +10,11 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useSession } from "@/lib/use-session";
 import { money } from "@/lib/cart";
+import { useDeliveryFee } from "@/lib/delivery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -75,10 +75,12 @@ function Admin() {
           <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
+          <TabsTrigger value="delivery">Delivery</TabsTrigger>
         </TabsList>
         <TabsContent value="orders"><Orders /></TabsContent>
         <TabsContent value="products"><Products /></TabsContent>
         <TabsContent value="categories"><Categories /></TabsContent>
+        <TabsContent value="delivery"><Delivery /></TabsContent>
       </Tabs>
     </div>
   );
@@ -187,7 +189,7 @@ function Products() {
 
   const catName = (id: string | null) => cats.find((c) => c.id === id)?.name ?? "";
   const visible = products.filter((p) =>
-    matches(q, [p.name, p.description, p.gender, p.age_group, p.sizes.join(" "), catName(p.category_id), p.active ? "visible" : "hidden"]),
+    matches(q, [p.name, p.description, p.gender, p.age_group, p.sizes.join(" "), catName(p.category_id)]),
   );
 
 
@@ -219,7 +221,7 @@ function Products() {
       sizes: ages,
       size_stock,
       stock: Object.values(size_stock).reduce((s, n) => s + n, 0),
-      active: f.active,
+      active: true,
       gender: f.gender,
       age_group: ages[0] ?? "0-3m",
     };
@@ -257,7 +259,7 @@ function Products() {
       ) : (
       <div className="overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full text-sm">
-          <thead className="bg-muted text-left"><tr><th className="p-3">Product</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Visible</th><th className="p-3" /></tr></thead>
+          <thead className="bg-muted text-left"><tr><th className="p-3">Product</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3" /></tr></thead>
           <tbody>
             {visible.map((p) => (
 
@@ -280,7 +282,6 @@ function Products() {
                     </ul>
                   )}
                 </td>
-                <td className="p-3">{p.active ? "Yes" : "No"}</td>
                 <td className="p-3 text-right">
                   <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
                   <Button variant="ghost" size="icon" onClick={() => del(p)}><Trash2 className="h-4 w-4" /></Button>
@@ -339,7 +340,6 @@ function Products() {
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-2"><Switch checked={f.active} onCheckedChange={(v) => setF({ ...f, active: v })} /><Label>Visible in shop</Label></div>
             <Button type="submit" disabled={busy} className="w-full rounded-full">{busy ? "Finish the photo first…" : "Save"}</Button>
           </form>
         </DialogContent>
@@ -451,7 +451,10 @@ function Orders() {
         <div key={o.id} className="rounded-2xl border border-border bg-card p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="font-semibold">#{o.id.slice(0, 8)} · {o.customer_name}</p>
+              <div className="flex items-center gap-1">
+                <p className="font-semibold">#{o.id.slice(0, 8)} · {o.customer_name}</p>
+                <Button variant="ghost" size="icon" aria-label="Delete order" onClick={() => del(o.id)}><Trash2 className="h-4 w-4" /></Button>
+              </div>
               <p className="text-sm text-muted-foreground">{o.phone} · {o.address}, {o.city}</p>
               <p className="text-xs text-muted-foreground">Cash on delivery</p>
               <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
@@ -465,7 +468,6 @@ function Orders() {
               <select className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={o.status} onChange={(e) => setStatus(o.id, e.target.value)}>
                 {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
-              <Button variant="ghost" size="icon" onClick={() => del(o.id)}><Trash2 className="h-4 w-4" /></Button>
             </div>
           </div>
           <ul className="mt-3 space-y-1 border-t border-border pt-3 text-sm">
@@ -480,5 +482,31 @@ function Orders() {
         </div>
       ))}
     </div>
+  );
+}
+
+/* ---------------- Delivery ---------------- */
+function Delivery() {
+  const qc = useQueryClient();
+  const { data: fee } = useDeliveryFee();
+  const [val, setVal] = useState<string | null>(null);
+  const shown = val ?? (fee == null ? "" : String(fee));
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const n = Number(shown);
+    if (!Number.isFinite(n) || n < 0) { toast.error("Enter a valid amount"); return; }
+    const { error } = await supabase.from("store_settings").upsert({ id: 1, delivery_fee: n, updated_at: new Date().toISOString() });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Delivery fee saved");
+    setVal(null);
+    qc.invalidateQueries({ queryKey: ["delivery-fee"] });
+  };
+  return (
+    <form onSubmit={save} className="mt-4 max-w-md space-y-3 rounded-2xl border border-border bg-card p-5">
+      <Label htmlFor="fee">Delivery fee ($)</Label>
+      <Input id="fee" type="number" step="0.01" min="0" value={shown} onChange={(e) => setVal(e.target.value)} />
+      <p className="text-xs text-muted-foreground">Added to the customer's total at checkout. Order totals here stay without it.</p>
+      <Button type="submit" className="rounded-full">Save</Button>
+    </form>
   );
 }
