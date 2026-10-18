@@ -75,8 +75,9 @@ function Shop() {
       </section>
 
       <div className="mb-8 space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</span>
+        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2">
+          <span className="pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</span>
+          <div className="flex flex-wrap gap-2">
           {[{ id: null, name: "All" }, ...categories].map((c) => (
             <button
               key={c.id ?? "all"}
@@ -88,9 +89,11 @@ function Shop() {
               {c.name}
             </button>
           ))}
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">For</span>
+        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2">
+          <span className="pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">For</span>
+          <div className="flex flex-wrap gap-2">
           {GENDERS.map((g) => (
             <button
               key={g.label}
@@ -102,9 +105,11 @@ function Shop() {
               {g.label}
             </button>
           ))}
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Age</span>
+        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2">
+          <span className="pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Age</span>
+          <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setAge(null)}
             className={`rounded-full border px-4 py-1.5 text-sm transition ${
@@ -124,6 +129,7 @@ function Shop() {
               {a}
             </button>
           ))}
+          </div>
         </div>
       </div>
 

@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
 });
 
-const STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
+const STATUSES = ["pending", "confirmed", "shipped"];
 
 // Multi-word "contains" search across a row's fields (case-insensitive).
 function matches(query: string, fields: Array<string | number | null | undefined>) {
@@ -267,12 +267,17 @@ function Products() {
                   {p.name}
                 </td>
                 <td className="p-3">{money(Number(p.price))}</td>
-                <td className="p-3">
-                  {p.stock}
+                <td className="min-w-[140px] p-3 align-top">
+                  <div className="font-semibold whitespace-nowrap">Total: {p.stock}</div>
                   {p.sizes.length > 0 && (
-                    <div className="text-xs text-muted-foreground">
-                      {p.sizes.map((s) => `${s}: ${(p.size_stock as Record<string, number>)?.[s] ?? 0}`).join(" · ")}
-                    </div>
+                    <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                      {p.sizes.map((s) => (
+                        <li key={s} className="flex justify-between gap-3 whitespace-nowrap">
+                          <span>{s}</span>
+                          <span className="font-medium text-foreground">{(p.size_stock as Record<string, number>)?.[s] ?? 0}</span>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </td>
                 <td className="p-3">{p.active ? "Yes" : "No"}</td>
@@ -411,7 +416,15 @@ function Orders() {
 
 
   const setStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+    const o = orders.find((x) => x.id === id);
+    const now = new Date().toISOString();
+    const patch: { status: string; confirmed_at?: string; shipped_at?: string } = { status };
+    if (status === "confirmed" && !o?.confirmed_at) patch.confirmed_at = now;
+    if (status === "shipped") {
+      if (!o?.shipped_at) patch.shipped_at = now;
+      if (!o?.confirmed_at) patch.confirmed_at = now;
+    }
+    const { error } = await supabase.from("orders").update(patch).eq("id", id);
     if (error) { toast.error(error.message); return; }
     toast.success("Status updated"); refresh();
   };
@@ -440,7 +453,12 @@ function Orders() {
             <div>
               <p className="font-semibold">#{o.id.slice(0, 8)} · {o.customer_name}</p>
               <p className="text-sm text-muted-foreground">{o.phone} · {o.address}, {o.city}</p>
-              <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString()} · Cash on delivery</p>
+              <p className="text-xs text-muted-foreground">Cash on delivery</p>
+              <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                <li>Pending: {new Date(o.created_at).toLocaleString()}</li>
+                {o.confirmed_at && <li>Confirmed: {new Date(o.confirmed_at).toLocaleString()}</li>}
+                {o.shipped_at && <li>Shipped: {new Date(o.shipped_at).toLocaleString()}</li>}
+              </ul>
               {o.notes && <p className="mt-1 text-sm italic">“{o.notes}”</p>}
             </div>
             <div className="flex items-center gap-2">

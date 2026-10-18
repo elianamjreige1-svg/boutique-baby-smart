@@ -81,36 +81,42 @@ export type Database = {
         Row: {
           address: string
           city: string
+          confirmed_at: string | null
           created_at: string
           customer_name: string
           id: string
           notes: string
           payment_method: string
           phone: string
+          shipped_at: string | null
           status: string
           total: number
         }
         Insert: {
           address: string
           city: string
+          confirmed_at?: string | null
           created_at?: string
           customer_name: string
           id?: string
           notes?: string
           payment_method?: string
           phone: string
+          shipped_at?: string | null
           status?: string
           total?: number
         }
         Update: {
           address?: string
           city?: string
+          confirmed_at?: string | null
           created_at?: string
           customer_name?: string
           id?: string
           notes?: string
           payment_method?: string
           phone?: string
+          shipped_at?: string | null
           status?: string
           total?: number
         }
