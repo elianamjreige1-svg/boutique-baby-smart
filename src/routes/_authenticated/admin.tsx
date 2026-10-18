@@ -457,21 +457,21 @@ function Orders() {
 
         <div key={o.id} className="rounded-2xl border border-border bg-card p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
+            <div>
            <div className="flex w-full items-start justify-between gap-4">
   <p className="min-w-0 flex-1 font-semibold">
     #{o.id.slice(0, 8)} · {o.customer_name}
   </p>
 
   <Button
-    variant="ghost"
-    size="icon"
-    className="shrink-0"
-    aria-label="Delete order"
-    onClick={() => del(o.id)}
-  >
-    <Trash2 className="h-4 w-4" />
-  </Button>
+  variant="ghost"
+  size="icon"
+  className="ml-auto shrink-0"
+  aria-label="Delete order"
+  onClick={() => del(o.id)}
+>
+  <Trash2 className="h-4 w-4" />
+</Button>
 </div>
               <p className="text-sm text-muted-foreground">{o.phone} · {o.address}, {o.city}</p>
               <p className="text-xs text-muted-foreground">Cash on delivery</p>
