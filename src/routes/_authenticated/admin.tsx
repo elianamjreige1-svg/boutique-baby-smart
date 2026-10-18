@@ -466,7 +466,7 @@ function Orders() {
   <Button
   variant="ghost"
   size="icon"
-  className="ml-auto shrink-0"
+  className="shrink-0"
   aria-label="Delete order"
   onClick={() => del(o.id)}
 >
