@@ -259,7 +259,14 @@ function Products() {
       ) : (
       <div className="overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full text-sm">
-          <thead className="bg-muted text-left"><tr><th className="p-3">Product</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3" /></tr></thead>
+         <thead className="bg-muted text-left">
+  <tr>
+    <th className="p-3">Product</th>
+    <th className="p-3 pr-6">Price</th>
+    <th className="p-3 pl-6">Stock</th>
+    <th className="p-3" />
+  </tr>
+</thead>
           <tbody>
             {visible.map((p) => (
 
@@ -268,8 +275,8 @@ function Products() {
                   <div className="h-12 w-10 overflow-hidden rounded bg-muted">{p.image_url && <img src={p.image_url} alt="" className="h-full w-full object-cover" />}</div>
                   {p.name}
                 </td>
-                <td className="p-3">{money(Number(p.price))}</td>
-                <td className="min-w-[140px] p-3 align-top">
+               <td className="p-3 pr-6">{money(Number(p.price))}</td>
+                <td className="min-w-[140px] p-3 pl-6 align-top">
                   <div className="font-semibold whitespace-nowrap">Total: {p.stock}</div>
                   {p.sizes.length > 0 && (
                     <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
