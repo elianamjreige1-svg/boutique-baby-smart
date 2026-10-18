@@ -272,8 +272,8 @@ function Products() {
                   {p.sizes.length > 0 && (
                     <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
                       {p.sizes.map((s) => (
-                        <li key={s} className="flex justify-between gap-3 whitespace-nowrap">
-                          <span>{s}</span>
+                        <li key={s} className="whitespace-nowrap">
+                          <span>{s}: </span>
                           <span className="font-medium text-foreground">{(p.size_stock as Record<string, number>)?.[s] ?? 0}</span>
                         </li>
                       ))}
