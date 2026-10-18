@@ -29,6 +29,13 @@
       "when": 1792311537788,
       "tag": "0003_order_status_dates",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792314519880,
+      "tag": "0004_store_settings",
+      "breakpoints": true
     }
   ]
 }

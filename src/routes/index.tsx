@@ -32,8 +32,9 @@ function Shop() {
     queryKey: ["categories"],
     queryFn: async () => {
       const rows = (await supabase.from("categories").select("*").order("name")).data ?? [];
-      const isAcc = (n: string) => n.toLowerCase().startsWith("accessor");
-      return [...rows.filter((c) => !isAcc(c.name)), ...rows.filter((c) => isAcc(c.name))];
+      const ORDER = ["set", "top", "bottom", "accessor"];
+      const rank = (n: string) => { const i = ORDER.findIndex((k) => n.toLowerCase().startsWith(k)); return i < 0 ? 3.5 : i; };
+      return [...rows].sort((a, b) => rank(a.name) - rank(b.name));
     },
   });
   const { data: products = [], isLoading } = useQuery({

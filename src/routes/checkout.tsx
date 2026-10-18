@@ -6,6 +6,7 @@ import { Banknote } from "lucide-react";
 import { money, useCart } from "@/lib/cart";
 import { placeOrder } from "@/lib/orders.functions";
 import { checkStock } from "@/lib/stock";
+import { useDeliveryFee } from "@/lib/delivery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +29,8 @@ function Checkout() {
   const place = useServerFn(placeOrder);
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const { data: fee = 0 } = useDeliveryFee();
+  const grand = total + fee;
   const [f, setF] = useState({ customer_name: "", phone: "", address: "", city: "", notes: "" });
 
   if (items.length === 0)
@@ -88,7 +91,7 @@ function Checkout() {
           </div>
         </div>
         <Button type="submit" size="lg" className="w-full rounded-full" disabled={busy}>
-          {busy ? "Placing order…" : `Place order · ${money(total)}`}
+          {busy ? "Placing order…" : `Place order · ${money(grand)}`}
         </Button>
       </form>
       <aside className="h-fit rounded-2xl border border-border bg-card p-5">
@@ -101,8 +104,12 @@ function Checkout() {
             </li>
           ))}
         </ul>
-        <div className="mt-4 flex justify-between border-t border-border pt-4 font-semibold">
-          <span>Total</span><span>{money(total)}</span>
+        <div className="mt-4 space-y-1 border-t border-border pt-4 text-sm">
+          <div className="flex justify-between"><span>Subtotal</span><span>{money(total)}</span></div>
+          <div className="flex justify-between"><span>Delivery</span><span>{money(fee)}</span></div>
+        </div>
+        <div className="mt-2 flex justify-between font-semibold">
+          <span>Total to pay</span><span>{money(grand)}</span>
         </div>
       </aside>
     </div>

@@ -178,6 +178,24 @@ export type Database = {
           },
         ]
       }
+      store_settings: {
+        Row: {
+          delivery_fee: number
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          delivery_fee?: number
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          delivery_fee?: number
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
