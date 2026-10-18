@@ -8,9 +8,9 @@ import { money } from "@/lib/cart";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CuddleKids — Soft Baby Clothes, Cash on Delivery" },
+      { title: "cuddlekidslb — Soft Baby Clothes, Cash on Delivery" },
       { name: "description", content: "Shop organic bodysuits, pajamas and knits for babies. Pay cash when it arrives." },
-      { property: "og:title", content: "CuddleKids — Soft Baby Clothes" },
+      { property: "og:title", content: "cuddlekidslb — Soft Baby Clothes" },
       { property: "og:description", content: "Organic baby clothes delivered to your door. Cash on delivery." },
     ],
   }),
@@ -21,7 +21,6 @@ const GENDERS = [
   { value: null, label: "Everyone" },
   { value: "boy", label: "Boy" },
   { value: "girl", label: "Girl" },
-  { value: "unisex", label: "Unisex" },
 ];
 const AGE_GROUPS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "10-12y"];
 
@@ -54,7 +53,7 @@ function Shop() {
       <section className="mb-12 rounded-3xl bg-accent px-8 py-14 text-center">
         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary"></p>
         <h1 className="mx-auto max-w-2xl text-4xl font-semibold text-accent-foreground md:text-6xl">
-         Welcome to cuddlekids.lb
+         Welcome to cuddlekidslb
         </h1>
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
           Organic cotton, soft knits, honest prices. Pay only when it reaches your door.
@@ -75,9 +74,9 @@ function Shop() {
       </section>
 
       <div className="mb-8 space-y-3">
-        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2">
-          <span className="pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</span>
-          <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</span>
+          <div className="contents">
           {[{ id: null, name: "All" }, ...categories].map((c) => (
             <button
               key={c.id ?? "all"}
@@ -91,9 +90,9 @@ function Shop() {
           ))}
           </div>
         </div>
-        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2">
-          <span className="pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">For</span>
-          <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">For</span>
+          <div className="contents">
           {GENDERS.map((g) => (
             <button
               key={g.label}
@@ -107,9 +106,9 @@ function Shop() {
           ))}
           </div>
         </div>
-        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2">
-          <span className="pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Age</span>
-          <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Age</span>
+          <div className="contents">
           <button
             onClick={() => setAge(null)}
             className={`rounded-full border px-4 py-1.5 text-sm transition ${
