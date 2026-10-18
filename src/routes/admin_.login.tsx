@@ -9,10 +9,10 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/admin_/login")({
   head: () => ({
     meta: [
-      { title: "Admin Login — CuddleKids" },
-      { name: "description", content: "Administrator sign in for CuddleKids." },
-      { property: "og:title", content: "Admin Login — CuddleKids" },
-      { property: "og:description", content: "CuddleKids admin dashboard." },
+      { title: "Admin Login — cuddlekidslb" },
+      { name: "description", content: "Administrator sign in for cuddlekidslb." },
+      { property: "og:title", content: "Admin Login — cuddlekidslb" },
+      { property: "og:description", content: "cuddlekidslb admin dashboard." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

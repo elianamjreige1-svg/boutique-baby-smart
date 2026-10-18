@@ -21,10 +21,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Admin — CuddleKids" },
+      { title: "Admin — cuddlekidslb" },
       { name: "description", content: "Manage products, categories and orders." },
-      { property: "og:title", content: "Admin — CuddleKids" },
-      { property: "og:description", content: "CuddleKids admin dashboard." },
+      { property: "og:title", content: "Admin — cuddlekidslb" },
+      { property: "og:description", content: "cuddlekidslb admin dashboard." },
       { name: "robots", content: "noindex" },
     ],
   }),
