@@ -32,7 +32,12 @@ function CartPage() {
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold">{i.name}</p>
-                  {i.size && <p className="text-sm text-muted-foreground">Size {i.size}</p>}
+                 {i.size && (
+  <div className="mt-1 text-sm text-muted-foreground">
+    <p>Size:</p>
+    <p className="break-words">{i.size}</p>
+  </div>
+)}
                   <p className="text-sm text-primary">{money(i.price)}</p>
                 </div>
                 <div className="flex items-center gap-2">
