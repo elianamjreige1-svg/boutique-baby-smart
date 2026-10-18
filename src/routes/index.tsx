@@ -153,7 +153,6 @@ function Shop() {
               <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
             </Link>
           ))}
-          </div>
         </div>
       )}
     </div>
