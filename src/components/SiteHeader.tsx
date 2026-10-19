@@ -10,11 +10,19 @@ export function SiteHeader() {
   const { user, isAdmin } = useSession();
   const navigate = useNavigate();
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link to="/" className="font-display text-2xl font-semibold text-foreground">
-          cuddlekids.lb
+        <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
+      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4">
+        <Link to="/" className="flex flex-col items-center gap-1 group">
+          <img
+            src="/images/logo.png"
+            alt="cuddlekids.lb"
+            className="h-8 w-auto object-contain"
+          />
+          <span className="font-display text-xl font-semibold text-foreground leading-none">
+            cuddlekids.lb
+          </span>
         </Link>
+
         <nav className="flex items-center gap-2 text-sm">
           {isAdmin && (
             <Button asChild variant="ghost" size="sm">
