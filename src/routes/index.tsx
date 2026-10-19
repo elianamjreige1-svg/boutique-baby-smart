@@ -8,9 +8,9 @@ import { money } from "@/lib/cart";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "cuddlekidslb — Soft Baby Clothes, Cash on Delivery" },
+      { title: "cuddlekids.lb — Soft Baby Clothes, Cash on Delivery" },
       { name: "description", content: "Shop organic bodysuits, pajamas and knits for babies. Pay cash when it arrives." },
-      { property: "og:title", content: "cuddlekidslb — Soft Baby Clothes" },
+      { property: "og:title", content: "cuddlekids.lb — Soft Baby Clothes" },
       { property: "og:description", content: "Organic baby clothes delivered to your door. Cash on delivery." },
     ],
   }),
@@ -54,7 +54,7 @@ function Shop() {
       <section className="mb-12 rounded-3xl bg-accent px-8 py-14 text-center">
         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary"></p>
         <h1 className="mx-auto max-w-2xl text-4xl font-semibold text-accent-foreground md:text-6xl">
-         Welcome to cuddlekidslb
+         Welcome to cuddlekids.lb
         </h1>
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
           Organic cotton, soft knits, honest prices. Pay only when it reaches your door.
