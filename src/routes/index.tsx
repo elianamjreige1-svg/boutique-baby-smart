@@ -139,20 +139,48 @@ function Shop() {
         <p className="text-muted-foreground">No products yet.</p>
       ) : (
         <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-          {shown.map((p) => (
-            <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="group">
-              <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
-                {p.image_url && (
-                  <img src={p.image_url} alt={p.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+               {shown.map((p) => {
+            const isSoldOut = p.stock < 1;
+            const content = (
+              <>
+                <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
+                  {p.image_url && (
+                    <img
+                      src={p.image_url}
+                      alt={p.name}
+                      loading="lazy"
+                      className={`h-full w-full object-cover transition duration-500 ${isSoldOut ? "opacity-60" : "group-hover:scale-105"}`}
+                    />
+                  )}
+                  {isSoldOut && (
+                    <span className="absolute top-2 right-2 rounded-full bg-destructive/90 px-2.5 py-1 text-xs font-semibold text-destructive-foreground">
+                      Sold out
+                    </span>
+                  )}
+                </div>
+                <h3 className="mt-3 text-lg">{p.name}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "Boy" : "Girl"} · {p.sizes.includes("All ages") ? "All ages" : p.age_group}
+                </p>
+                {isSoldOut ? (
+                  <p className="text-sm font-semibold text-destructive">Sold out</p>
+                ) : (
+                  <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
                 )}
+              </>
+            );
+
+            return isSoldOut ? (
+              <div key={p.id} className="cursor-not-allowed select-none">
+                {content}
               </div>
-              <h3 className="mt-3 text-lg">{p.name}</h3>
-              <p className="text-xs text-muted-foreground">
-                {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "Boy" : "Girl"} · {p.sizes.includes("All ages") ? "All ages" : p.age_group}
-              </p>
-              <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
-            </Link>
-          ))}
+            ) : (
+              <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="group">
+                {content}
+              </Link>
+            );
+          })}
+
         </div>
       )}
     </div>
