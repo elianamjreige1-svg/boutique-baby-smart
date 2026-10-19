@@ -329,7 +329,7 @@ function Products() {
           <DialogHeader><DialogTitle>{editing ? "Edit product" : "New product"}</DialogTitle></DialogHeader>
           <form onSubmit={save} className="space-y-3">
             <div className="space-y-1"><Label>Name</Label><Input required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
-            <div className="space-y-1"><Label>Description</Label><Textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
+            <div className="space-y-1"><Label>Description (Optional)</Label><Textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
             <div className="space-y-1"><Label>Price</Label><Input type="number" step="0.01" min="0" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
             {f.images.length > 0 && (
               <div className="space-y-1">
@@ -351,7 +351,7 @@ function Products() {
             )}
             <PhotoField value="" onChange={(url) => setF((cur) => ({ ...cur, images: [...cur.images, url], image_url: cur.image_url || url }))} onBusy={setBusy} />
             <div className="space-y-1">
-              <Label>Category*</Label>
+              <Label>Category</Label>
               <select required className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.category_id} onChange={(e) => setF({ ...f, category_id: e.target.value })}>
                 <option value="">Select a category</option>
                 {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
