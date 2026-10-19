@@ -17,6 +17,20 @@ export const Route = createFileRoute("/cart")({
 
 function CartPage() {
   const { items, update, remove, total } = useCart();
+  const navigate = useNavigate();
+  const [checking, setChecking] = useState(false);
+  const goCheckout = async () => {
+    setChecking(true);
+    try {
+      const problems = await cartStockProblems(items);
+      if (problems.length) showStockAlert(problems);
+      else navigate({ to: "/checkout" });
+    } catch {
+      toast.error("Could not check stock, please try again");
+    } finally {
+      setChecking(false);
+    }
+  };
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="mb-8 text-4xl font-semibold">Your cart</h1>
