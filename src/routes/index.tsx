@@ -22,7 +22,7 @@ const GENDERS = [
   { value: "boy", label: "Boy" },
   { value: "girl", label: "Girl" },
 ];
-const AGE_GROUPS = ["0-3M", "3-6M", "6-9M", "9-12M", "12-18M", "18-24M", "2-4y", "4-6y", "6-8y", "8-10y"];
+const AGE_GROUPS = ["0-3M", "3-6M", "6-9M", "9-12M", "12-18M", "18-24M", "2-4Y", "4-6Y", "6-8Y", "8-10Y"];
 
 function Shop() {
   const [cat, setCat] = useState<string | null>(null);
