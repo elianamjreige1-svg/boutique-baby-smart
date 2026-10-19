@@ -97,3 +97,36 @@ function ProductPage() {
     </div>
   );
 }
+
+function Gallery({ photos, name }: { photos: string[]; name: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [idx, setIdx] = useState(0);
+  const go = (i: number) => {
+    const el = ref.current;
+    if (el) el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" });
+  };
+  return (
+    <div className="relative">
+      <div
+        ref={ref}
+        onScroll={(e) => setIdx(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}
+        className="flex aspect-[4/5] snap-x snap-mandatory overflow-x-auto overflow-y-hidden rounded-3xl bg-muted [scrollbar-width:none]"
+      >
+        {photos.map((src, i) => (
+          <img key={src} src={src} alt={`${name} ${i + 1}`} className="h-full w-full flex-none snap-center object-cover" />
+        ))}
+      </div>
+      {photos.length > 1 && (
+        <>
+          <button type="button" aria-label="Previous photo" onClick={() => go(Math.max(0, idx - 1))} className="absolute left-2 top-[45%] -translate-y-1/2 rounded-full bg-card/80 p-2 shadow"><ChevronLeft className="h-5 w-5" /></button>
+          <button type="button" aria-label="Next photo" onClick={() => go(Math.min(photos.length - 1, idx + 1))} className="absolute right-2 top-[45%] -translate-y-1/2 rounded-full bg-card/80 p-2 shadow"><ChevronRight className="h-5 w-5" /></button>
+          <div className="mt-3 flex justify-center gap-2">
+            {photos.map((_, i) => (
+              <button key={i} type="button" aria-label={`Photo ${i + 1}`} onClick={() => go(i)} className={`h-2 w-2 rounded-full ${i === idx ? "bg-primary" : "bg-border"}`} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
