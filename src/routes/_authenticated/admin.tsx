@@ -95,9 +95,12 @@ function useCategories() {
 
 /* ---------------- Products ---------------- */
 type Product = Tables<"products">;
-const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", active: true, gender: "unisex", ages: [] as string[], qty: {} as Record<string, string> };
+const emptyProduct = { name: "", description: "", price: "0", image_url: "", images: [] as string[], category_id: "", active: true, gender: "unisex", ages: [] as string[], qty: {} as Record<string, string> };
+const allPhotos = (p: { image_url: string | null; images?: string[] | null }) =>
+  p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
+
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
-const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "10-12y"];
+const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "All ages"];
 
 type Pending = { opt: Optimized; preview: string };
 
@@ -203,7 +206,7 @@ function Products() {
     const ss = (p.size_stock ?? {}) as Record<string, number>;
     const qty: Record<string, string> = {};
     for (const a of AGE_OPTIONS) qty[a] = String(ss[a] ?? 0);
-    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", category_id: p.category_id ?? "", active: p.active, gender: p.gender, ages: p.sizes.length ? p.sizes.filter((s) => AGE_OPTIONS.includes(s)) : [p.age_group], qty });
+    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", images: allPhotos(p), category_id: p.category_id ?? "", active: p.active, gender: p.gender, ages: p.sizes.length ? p.sizes.filter((s) => AGE_OPTIONS.includes(s)) : [p.age_group], qty });
     setOpen(true);
   };
   const save = async (e: React.FormEvent) => {
@@ -212,11 +215,13 @@ function Products() {
     const ages = AGE_OPTIONS.filter((a) => f.ages.includes(a));
     const size_stock: Record<string, number> = {};
     for (const a of ages) size_stock[a] = Math.max(0, parseInt(f.qty[a] ?? "0") || 0);
+    const main = f.images.includes(f.image_url) ? f.image_url : f.images[0] ?? null;
     const row = {
       name: f.name.trim(),
       description: f.description,
       price: Number(f.price) || 0,
-      image_url: f.image_url.trim() || null,
+      image_url: main,
+      images: main ? [main, ...f.images.filter((u) => u !== main)] : [],
       category_id: f.category_id || null,
       sizes: ages,
       size_stock,
@@ -229,8 +234,11 @@ function Products() {
       ? await supabase.from("products").update(row).eq("id", editing.id)
       : await supabase.from("products").insert(row);
     if (error) { toast.error(error.message); return; }
-    const old = editing ? photoToDeleteOnSave(editing.image_url, row.image_url) : null;
-    if (old) await supabase.storage.from("product-images").remove([old]);
+    if (editing) {
+      const before = allPhotos(editing);
+      const old = before.filter((u) => !row.images.includes(u)).map(photoPath).filter((x): x is string => !!x);
+      if (old.length) await supabase.storage.from("product-images").remove(old);
+    }
     toast.success("Product saved");
     setOpen(false);
     refresh();
@@ -239,8 +247,8 @@ function Products() {
     if (!confirm(`Delete "${p.name}"?`)) return;
     const { error } = await supabase.from("products").delete().eq("id", p.id);
     if (error) { toast.error(error.message); return; }
-    const photo = photoPath(p.image_url);
-    if (photo) await supabase.storage.from("product-images").remove([photo]);
+    const photos = allPhotos(p).map(photoPath).filter((x): x is string => !!x);
+    if (photos.length) await supabase.storage.from("product-images").remove(photos);
     toast.success("Deleted");
     refresh();
   };
@@ -308,7 +316,25 @@ function Products() {
             <div className="space-y-1"><Label>Name</Label><Input required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
             <div className="space-y-1"><Label>Description</Label><Textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
             <div className="space-y-1"><Label>Price</Label><Input type="number" step="0.01" min="0" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
-            <PhotoField value={f.image_url} onChange={(url) => setF((cur) => ({ ...cur, image_url: url }))} onBusy={setBusy} />
+            {f.images.length > 0 && (
+              <div className="space-y-1">
+                <Label>Photos (tap "Main" to choose the shop photo)</Label>
+                <div className="flex flex-wrap gap-2">
+                  {f.images.map((url) => (
+                    <div key={url} className={`w-24 rounded-lg border-2 p-1 ${f.image_url === url ? "border-primary" : "border-border"}`}>
+                      <img src={url} alt="" className="h-24 w-full rounded object-cover" />
+                      <div className="mt-1 flex justify-between text-xs">
+                        <button type="button" className={f.image_url === url ? "font-semibold text-primary" : "text-muted-foreground"} onClick={() => setF((cur) => ({ ...cur, image_url: url }))}>
+                          {f.image_url === url ? "★ Main" : "Main"}
+                        </button>
+                        <button type="button" className="text-destructive" onClick={() => setF((cur) => { const images = cur.images.filter((x) => x !== url); return { ...cur, images, image_url: cur.image_url === url ? images[0] ?? "" : cur.image_url }; })}>Remove</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <PhotoField value="" onChange={(url) => setF((cur) => ({ ...cur, images: [...cur.images, url], image_url: cur.image_url || url }))} onBusy={setBusy} />
             <div className="space-y-1">
               <Label>Category</Label>
               <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.category_id} onChange={(e) => setF({ ...f, category_id: e.target.value })}>

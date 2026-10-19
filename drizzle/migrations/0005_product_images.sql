@@ -1,0 +1,3 @@
+ALTER TABLE public.products ADD COLUMN images text[] NOT NULL DEFAULT '{}';
+UPDATE public.products SET images = ARRAY[image_url] WHERE image_url IS NOT NULL AND image_url <> '';
+UPDATE public.products SET sizes = array_replace(sizes, '10-12y', 'All ages'), size_stock = CASE WHEN size_stock ? '10-12y' THEN (size_stock - '10-12y') || jsonb_build_object('All ages', size_stock->'10-12y') ELSE size_stock END, age_group = CASE WHEN age_group = '10-12y' THEN 'All ages' ELSE age_group END;

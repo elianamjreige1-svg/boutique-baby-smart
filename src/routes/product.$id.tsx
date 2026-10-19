@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { money, useCart } from "@/lib/cart";
@@ -34,15 +35,14 @@ function ProductPage() {
   if (!p) return <p className="p-12 text-center">Product not found. <Link to="/" className="text-primary underline">Back to shop</Link></p>;
 
   const needsSize = p.sizes.length > 0;
+  const photos = p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
   return (
     <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 md:grid-cols-2">
-      <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-muted">
-        {p.image_url && <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />}
-      </div>
+      <Gallery photos={photos} name={p.name} />
       <div className="flex flex-col gap-5">
         <h1 className="text-4xl font-semibold">{p.name}</h1>
         <p className="text-sm text-muted-foreground">
-          {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "For boys" : "For girls"} · Age {p.sizes.length ? p.sizes.join(", ") : p.age_group}
+          {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "For boys" : "For girls"} · Age: {p.sizes.includes("All ages") ? "All ages" : p.sizes.length ? p.sizes.join(", ") : p.age_group}
         </p>
         <p className="text-2xl font-semibold text-primary">{money(Number(p.price))}</p>
         <p className="text-muted-foreground">{p.description}</p>
@@ -95,6 +95,39 @@ function ProductPage() {
           {p.stock < 1 ? "Sold out" : "Add to cart"}
         </Button>
       </div>
+    </div>
+  );
+}
+
+function Gallery({ photos, name }: { photos: string[]; name: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [idx, setIdx] = useState(0);
+  const go = (i: number) => {
+    const el = ref.current;
+    if (el) el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" });
+  };
+  return (
+    <div className="relative">
+      <div
+        ref={ref}
+        onScroll={(e) => setIdx(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}
+        className="flex aspect-[4/5] snap-x snap-mandatory overflow-x-auto overflow-y-hidden rounded-3xl bg-muted [scrollbar-width:none]"
+      >
+        {photos.map((src, i) => (
+          <img key={src} src={src} alt={`${name} ${i + 1}`} className="h-full w-full flex-none snap-center object-cover" />
+        ))}
+      </div>
+      {photos.length > 1 && (
+        <>
+          <button type="button" aria-label="Previous photo" onClick={() => go(Math.max(0, idx - 1))} className="absolute left-2 top-[45%] -translate-y-1/2 rounded-full bg-card/80 p-2 shadow"><ChevronLeft className="h-5 w-5" /></button>
+          <button type="button" aria-label="Next photo" onClick={() => go(Math.min(photos.length - 1, idx + 1))} className="absolute right-2 top-[45%] -translate-y-1/2 rounded-full bg-card/80 p-2 shadow"><ChevronRight className="h-5 w-5" /></button>
+          <div className="mt-3 flex justify-center gap-2">
+            {photos.map((_, i) => (
+              <button key={i} type="button" aria-label={`Photo ${i + 1}`} onClick={() => go(i)} className={`h-2 w-2 rounded-full ${i === idx ? "bg-primary" : "bg-border"}`} />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
