@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
-      { title: "Your Cart — cuddlekidslb" },
+      { title: "Your Cart — cuddlekids.lb" },
       { name: "description", content: "Review the items in your cuddlekidslb cart." },
-      { property: "og:title", content: "Your Cart — cuddlekidslb" },
+      { property: "og:title", content: "Your Cart — cuddlekids.lb" },
       { property: "og:description", content: "Review your cart and check out with cash on delivery." },
     ],
   }),
