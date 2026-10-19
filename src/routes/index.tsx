@@ -57,7 +57,7 @@ function Shop() {
          Welcome to cuddlekids.lb
         </h1>
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
-          Organic cotton, soft knits, honest prices. Pay only when it reaches your door.
+          Organic cotton, soft knits, honest prices.
         </p>
         <div className="mt-6 flex flex-col items-center gap-3">
           <a href="tel:+96171613153" className="inline-block rounded-full bg-primary px-6 py-2 font-semibold text-primary-foreground">
