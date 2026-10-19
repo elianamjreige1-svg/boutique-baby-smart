@@ -162,11 +162,23 @@ function Shop() {
                 <p className="text-xs text-muted-foreground">
                   {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "Boy" : "Girl"} · {p.sizes.includes("All ages") ? "All ages" : p.age_group}
                 </p>
-               
+                {isSoldOut ? (
+                  <p className="text-sm font-semibold text-destructive">Sold out</p>
+                ) : (
+                  <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
+                )}
               </>
             );
 
-            
+            return isSoldOut ? (
+              <div key={p.id} className="cursor-not-allowed select-none">
+                {content}
+              </div>
+            ) : (
+              <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="group">
+                {content}
+              </Link>
+            );
           })}
 
         </div>
