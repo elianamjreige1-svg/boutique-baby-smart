@@ -99,6 +99,7 @@ const emptyProduct = { name: "", description: "", price: "0", image_url: "", ima
 const allPhotos = (p: { image_url: string | null; images?: string[] | null }) =>
   p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
 
+const GENDER_OPTIONS = ["unisex", "boy", "girl"];
 const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "All ages"];
 
 type Pending = { opt: Optimized; preview: string };
