@@ -33,8 +33,12 @@ function ProductPage() {
 
   if (isLoading) return <p className="p-12 text-center text-muted-foreground">Loading…</p>;
   if (!p) return <p className="p-12 text-center">Product not found. <Link to="/" className="text-primary underline">Back to shop</Link></p>;
-    const isAllAges = p.sizes.includes("All ages");
-  const selectedSize = size ?? (isAllAges ? "All ages" : null);
+  //  const isAllAges = p.sizes.includes("All ages");
+  //const selectedSize = size ?? (isAllAges ? "All ages" : null);
+const isAllAges = p.sizes.includes("All ages");
+const selectedSize = size ?? (
+  p.sizes.length === 1 ? p.sizes[0] : isAllAges ? "All ages" : null
+);
 
 
   const needsSize = p.sizes.length > 0;
