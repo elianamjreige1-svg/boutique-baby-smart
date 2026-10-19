@@ -1,4 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { cartStockProblems, showStockAlert } from "@/lib/stock-alert";
 import { Trash2 } from "lucide-react";
 import { money, useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
@@ -67,7 +70,7 @@ function CartPage() {
           </ul>
           <div className="mt-6 flex items-center justify-between">
             <p className="text-xl">Total: <span className="font-semibold">{money(total)}</span></p>
-            <Button asChild size="lg" className="rounded-full"><Link to="/checkout">Checkout</Link></Button>
+            <Button size="lg" className="rounded-full" disabled={checking} onClick={goCheckout}>{checking ? "Checking…" : "Checkout"}</Button>
           </div>
         </>
       )}

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Banknote } from "lucide-react";
 import { money, useCart } from "@/lib/cart";
 import { placeOrder } from "@/lib/orders.functions";
-import { checkStock } from "@/lib/stock";
+import { cartStockProblems, showStockAlert } from "@/lib/stock-alert";
 import { useDeliveryFee } from "@/lib/delivery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
