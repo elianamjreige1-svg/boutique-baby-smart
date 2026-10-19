@@ -329,7 +329,7 @@ function Products() {
           <DialogHeader><DialogTitle>{editing ? "Edit product" : "New product"}</DialogTitle></DialogHeader>
           <form onSubmit={save} className="space-y-3">
             <div className="space-y-1"><Label>Name</Label><Input required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
-            <div className="space-y-1"><Label>Description (Optional)</Label><Textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
+            <div className="space-y-1"><Label>Description (optional)</Label><Textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
             <div className="space-y-1"><Label>Price</Label><Input type="number" step="0.01" min="0" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
             {f.images.length > 0 && (
               <div className="space-y-1">
