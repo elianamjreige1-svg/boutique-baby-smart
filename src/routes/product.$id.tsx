@@ -34,15 +34,14 @@ function ProductPage() {
   if (!p) return <p className="p-12 text-center">Product not found. <Link to="/" className="text-primary underline">Back to shop</Link></p>;
 
   const needsSize = p.sizes.length > 0;
+  const photos = p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
   return (
     <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 md:grid-cols-2">
-      <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-muted">
-        {p.image_url && <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />}
-      </div>
+      <Gallery photos={photos} name={p.name} />
       <div className="flex flex-col gap-5">
         <h1 className="text-4xl font-semibold">{p.name}</h1>
         <p className="text-sm text-muted-foreground">
-          {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "For boys" : "For girls"} · Age {p.sizes.length ? p.sizes.join(", ") : p.age_group}
+          {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "For boys" : "For girls"} · Age: {p.sizes.includes("All ages") ? "All ages" : p.sizes.length ? p.sizes.join(", ") : p.age_group}
         </p>
         <p className="text-2xl font-semibold text-primary">{money(Number(p.price))}</p>
         <p className="text-muted-foreground">{p.description}</p>
