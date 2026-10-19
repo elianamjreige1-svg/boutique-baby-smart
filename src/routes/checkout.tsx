@@ -40,16 +40,9 @@ function Checkout() {
     e.preventDefault();
     setBusy(true);
     try {
-      const lines = await checkStock(items.map((i) => ({ productId: i.productId, size: i.size })));
-      const problems = items.flatMap((i) => {
-        const l = lines.find((x) => x.productId === i.productId && x.size === i.size);
-        const available = l?.available ?? 0;
-        return i.quantity > available
-          ? [available === 0 ? `${i.name}${i.size ? ` (${i.size})` : ""} is sold out` : `${i.name}${i.size ? ` (${i.size})` : ""}: only ${available} items available`]
-          : [];
-      });
+      const problems = await cartStockProblems(items);
       if (problems.length) {
-        toast.error("Please update your cart", { description: problems.join("\n"), duration: 8000 });
+        showStockAlert(problems);
         return;
       }
       const res = await place({
@@ -58,7 +51,9 @@ function Checkout() {
       clear();
       navigate({ to: "/order-success", search: { id: res.id } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not place order. Please check your details.");
+      const msg = err instanceof Error ? err.message : "";
+      if (/sold out|items? available/.test(msg)) showStockAlert([msg]);
+      else toast.error(msg || "Could not place order. Please check your details.");
     } finally {
       setBusy(false);
     }
