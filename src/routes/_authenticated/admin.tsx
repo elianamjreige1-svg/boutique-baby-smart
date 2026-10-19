@@ -209,9 +209,24 @@ function Products() {
     setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", images: allPhotos(p), category_id: p.category_id ?? "", active: p.active, gender: p.gender, ages: p.sizes.length ? p.sizes.filter((s) => AGE_OPTIONS.includes(s)) : [p.age_group], qty });
     setOpen(true);
   };
-  const save = async (e: React.FormEvent) => {
+/*  const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (f.ages.length === 0) { toast.error("Please check at least one age"); return; }
+    if (f.ages.length === 0) { toast.error("Please check at least one age"); return; }*/
+    const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!f.category_id) {
+      toast.error("Please select a category");
+      return;
+    }
+    if (f.images.length === 0 && !f.image_url) {
+      toast.error("Please upload at least one photo");
+      return;
+    }
+    if (f.ages.length === 0) {
+      toast.error("Please check at least one age");
+      return;
+    }
+
     const ages = AGE_OPTIONS.filter((a) => f.ages.includes(a));
     const size_stock: Record<string, number> = {};
     for (const a of ages) size_stock[a] = Math.max(0, parseInt(f.qty[a] ?? "0") || 0);
@@ -336,9 +351,9 @@ function Products() {
             )}
             <PhotoField value="" onChange={(url) => setF((cur) => ({ ...cur, images: [...cur.images, url], image_url: cur.image_url || url }))} onBusy={setBusy} />
             <div className="space-y-1">
-              <Label>Category</Label>
-              <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.category_id} onChange={(e) => setF({ ...f, category_id: e.target.value })}>
-                <option value="">None</option>
+              <Label>Category*</Label>
+              <select required className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.category_id} onChange={(e) => setF({ ...f, category_id: e.target.value })}>
+                <option value="">Select a category</option>
                 {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
