@@ -138,11 +138,11 @@ function Shop() {
       ) : shown.length === 0 ? (
         <p className="text-muted-foreground">No products yet.</p>
       ) : (
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-               {shown.map((p) => {
+               <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+          {shown.map((p) => {
             const isSoldOut = p.stock < 1;
-            const content = (
-              <>
+            return (
+              <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="group">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
                   {p.image_url && (
                     <img
@@ -162,26 +162,12 @@ function Shop() {
                 <p className="text-xs text-muted-foreground">
                   {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "Boy" : "Girl"} · {p.sizes.includes("All ages") ? "All ages" : p.age_group}
                 </p>
-                {isSoldOut ? (
-                  <p className="text-sm font-semibold text-destructive">Sold out</p>
-                ) : (
-                  <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
-                )}
-              </>
-            );
-
-            return isSoldOut ? (
-              <div key={p.id} className="cursor-not-allowed select-none">
-                {content}
-              </div>
-            ) : (
-              <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="group">
-                {content}
+                <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
               </Link>
             );
           })}
-
         </div>
+
       )}
     </div>
   );
