@@ -33,6 +33,9 @@ function ProductPage() {
 
   if (isLoading) return <p className="p-12 text-center text-muted-foreground">Loading…</p>;
   if (!p) return <p className="p-12 text-center">Product not found. <Link to="/" className="text-primary underline">Back to shop</Link></p>;
+    const isAllAges = p.sizes.includes("All ages");
+  const selectedSize = size ?? (isAllAges ? "All ages" : null);
+
 
   const needsSize = p.sizes.length > 0;
   const photos = p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
@@ -54,7 +57,7 @@ function ProductPage() {
                 <button
                   key={s}
                   onClick={() => setSize(s)}
-                  className={`rounded-full border px-4 py-1.5 text-sm ${size === s ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}
+                  className={`rounded-full border px-4 py-1.5 text-sm ${selectedSize === s ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}
                 >
                   {s}
                 </button>
@@ -72,18 +75,18 @@ function ProductPage() {
           className="rounded-full"
           disabled={p.stock < 1 || adding}
           onClick={async () => {
-            if (needsSize && !size) { toast.error("Please choose a size"); return; }
+            if (needsSize && !selectedSize) { toast.error("Please choose a size"); return; }
             setAdding(true);
             try {
-              const [line] = await checkStock([{ productId: p.id, size }]);
+              const [line] = await checkStock([{ productId: p.id, size:selectedSize }]);
               const available = line?.available ?? 0;
-              const inCart = items.find((i) => i.productId === p.id && i.size === size)?.quantity ?? 0;
+              const inCart = items.find((i) => i.productId === p.id && i.size === selectedSize)?.quantity ?? 0;
               if (qty + inCart > available) {
                 const left = Math.max(0, available - inCart);
                 toast.error(left === 0 ? (inCart ? `Only ${available} items available, all already in your cart` : "Sold out") : `Only ${left} items available`);
                 return;
               }
-              add({ productId: p.id, name: p.name, price: Number(p.price), image: p.image_url, size, quantity: qty });
+              add({ productId: p.id, name: p.name, price: Number(p.price), image: p.image_url, size:selectedSize, quantity: qty });
               toast.success("Added to cart");
             } catch {
               toast.error("Could not check stock, please try again");
