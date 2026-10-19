@@ -22,7 +22,7 @@ const GENDERS = [
   { value: "boy", label: "Boy" },
   { value: "girl", label: "Girl" },
 ];
-const AGE_GROUPS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "10-12y"];
+const AGE_GROUPS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y"];
 
 function Shop() {
   const [cat, setCat] = useState<string | null>(null);
@@ -46,7 +46,7 @@ function Shop() {
     (p) =>
       (!cat || p.category_id === cat) &&
       (!gender || p.gender === gender || p.gender === "unisex") &&
-      (!age || p.age_group === age || p.sizes.includes(age)),
+      (!age || p.age_group === age || p.sizes.includes(age) || p.sizes.includes("All ages")),
   );
 
   return (
@@ -148,7 +148,7 @@ function Shop() {
               </div>
               <h3 className="mt-3 text-lg">{p.name}</h3>
               <p className="text-xs text-muted-foreground">
-                {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "Boy" : "Girl"} · {p.age_group}
+                {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "Boy" : "Girl"} · {p.sizes.includes("All ages") ? "All ages" : p.age_group}
               </p>
               <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
             </Link>
