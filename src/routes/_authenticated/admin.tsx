@@ -492,7 +492,7 @@ function Orders() {
   <Button
   variant="ghost"
   size="icon"
-  className="shrink-0"
+  className="shrink-0 text-muted-foreground hover:text-destructive"
   aria-label="Delete order"
   onClick={() => del(o.id)}
 >
