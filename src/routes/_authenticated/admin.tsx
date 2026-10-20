@@ -497,37 +497,35 @@ function Orders() {
       {visible.map((o) => (
 
         <div key={o.id} className="rounded-2xl border border-border bg-card p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-           <div className="flex w-full items-start justify-between gap-4">
-  <p className="min-w-0 flex-1 font-semibold">
-    #{o.id.slice(0, 8)} · {o.customer_name}
-  </p>
-
-  <Button
-  variant="ghost"
-  size="icon"
-  className="shrink-0"
-  aria-label="Delete order"
-  onClick={() => del(o.id)}
->
-  <Trash2 className="h-4 w-4" />
-</Button>
-</div>
-              <p className="text-sm text-muted-foreground">{o.phone} · {o.address}, {o.city}</p>
-              <p className="text-xs text-muted-foreground">Cash on delivery</p>
-              <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
-                <li>Pending: {new Date(o.created_at).toLocaleString()}</li>
-                {o.confirmed_at && <li>Confirmed: {new Date(o.confirmed_at).toLocaleString()}</li>}
-                {o.shipped_at && <li>Shipped: {new Date(o.shipped_at).toLocaleString()}</li>}
-              </ul>
-              {o.notes && <p className="mt-1 text-sm italic">“{o.notes}”</p>}
-            </div>
-            <div className="flex items-center gap-2">
-              <select className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={o.status} onChange={(e) => setStatus(o.id, e.target.value)}>
-                {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
+          <div className="flex items-start justify-between gap-4">
+            <p className="min-w-0 flex-1 font-semibold">#{o.id.slice(0, 8)}</p>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="-mr-2 -mt-2 shrink-0"
+              aria-label="Delete order"
+              onClick={() => del(o.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+          <p className="mt-2 font-semibold break-words">{o.customer_name}</p>
+          <p className="text-sm text-muted-foreground break-words">{o.phone} · {o.address}, {o.city}</p>
+          <p className="text-xs text-muted-foreground">Cash on delivery</p>
+          {o.notes && <p className="text-sm italic break-words">“{o.notes}”</p>}
+          <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+            <li>Pending: {new Date(o.created_at).toLocaleString()}</li>
+            {o.confirmed_at && <li>Confirmed: {new Date(o.confirmed_at).toLocaleString()}</li>}
+            {o.shipped_at && <li>Shipped: {new Date(o.shipped_at).toLocaleString()}</li>}
+          </ul>
+          <div className="mt-3">
+            <select
+              className="h-9 w-full max-w-xs rounded-md border border-input bg-background px-2 text-sm"
+              value={o.status}
+              onChange={(e) => setStatus(o.id, e.target.value)}
+            >
+              {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
           </div>
           <ul className="mt-3 space-y-1 border-t border-border pt-3 text-sm">
             {o.order_items.map((i) => (
