@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Banknote } from "lucide-react";
 import { money, useCart } from "@/lib/cart";
 import { placeOrder } from "@/lib/orders.functions";
-import { cartStockProblems, showStockAlert } from "@/lib/stock-alert";
+import { cartStockProblems, showFormErrors, showStockAlert } from "@/lib/stock-alert";
 import { useDeliveryFee } from "@/lib/delivery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,20 @@ function Checkout() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Field length checks (must match the server's rules).
+    const MIN: Record<string, [number, string]> = {
+      customer_name: [2, "Full name"],
+      phone: [6, "Phone"],
+      address: [5, "Address"],
+      city: [2, "City"],
+    };
+    const fieldErrors = (Object.keys(MIN) as (keyof typeof f)[])
+      .filter((k) => f[k].trim().length < MIN[k][0])
+      .map((k) => `${MIN[k][1]}: minimum ${MIN[k][0]} characters`);
+    if (fieldErrors.length > 0) {
+      showFormErrors(fieldErrors);
+      return;
+    }
     setBusy(true);
     try {
       const problems = await cartStockProblems(items);
