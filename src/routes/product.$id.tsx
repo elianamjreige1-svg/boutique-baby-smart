@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { money, useCart } from "@/lib/cart";
-import { checkStock } from "@/lib/stock";
+import { availableFor, checkStock } from "@/lib/stock";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/product/$id")({
@@ -33,13 +33,11 @@ function ProductPage() {
 
   if (isLoading) return <p className="p-12 text-center text-muted-foreground">Loading…</p>;
   if (!p) return <p className="p-12 text-center">Product not found. <Link to="/" className="text-primary underline">Back to shop</Link></p>;
-  //  const isAllAges = p.sizes.includes("All ages");
-  //const selectedSize = size ?? (isAllAges ? "All ages" : null);
-const isAllAges = p.sizes.includes("All ages");
-const selectedSize = size ?? (
-  p.sizes.length === 1 ? p.sizes[0] : isAllAges ? "All ages" : null
-);
-
+  const isAllAges = p.sizes.includes("All ages");
+  const leftFor = (s: string) => availableFor(p, s);
+  const autoSize = p.sizes.length === 1 ? p.sizes[0] : isAllAges ? "All ages" : null;
+  const selectedSize = size ?? (autoSize && leftFor(autoSize) > 0 ? autoSize : null);
+  const selectedLeft = selectedSize ? leftFor(selectedSize) : p.stock;
 
   const needsSize = p.sizes.length > 0;
   const photos = p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
@@ -57,15 +55,21 @@ const selectedSize = size ?? (
           <div>
             <p className="mb-2 text-sm font-semibold">Size</p>
             <div className="flex flex-wrap gap-2">
-              {p.sizes.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSize(s)}
-                  className={`rounded-full border px-4 py-1.5 text-sm ${selectedSize === s ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}
-                >
-                  {s}
-                </button>
-              ))}
+              {p.sizes.map((s) => {
+                const out = leftFor(s) < 1;
+                return (
+                  <button
+                    key={s}
+                    disabled={out}
+                    title={out ? "Sold out" : undefined}
+                    onClick={() => setSize(s)}
+                    className={`rounded-full border px-4 py-1.5 text-sm ${selectedSize === s ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"} ${out ? "cursor-not-allowed border-dashed bg-muted text-muted-foreground line-through opacity-70" : ""}`}
+                  >
+                    {s}
+                    {out && <span className="ml-1 text-[10px] font-semibold uppercase no-underline">sold out</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -77,12 +81,12 @@ const selectedSize = size ?? (
         <Button
           size="lg"
           className="rounded-full"
-          disabled={p.stock < 1 || adding}
+          disabled={selectedLeft < 1 || adding}
           onClick={async () => {
             if (needsSize && !selectedSize) { toast.error("Please choose a size"); return; }
             setAdding(true);
             try {
-              const [line] = await checkStock([{ productId: p.id, size:selectedSize }]);
+              const [line] = await checkStock([{ productId: p.id, size: selectedSize }]);
               const available = line?.available ?? 0;
               const inCart = items.find((i) => i.productId === p.id && i.size === selectedSize)?.quantity ?? 0;
               if (qty + inCart > available) {
@@ -90,7 +94,7 @@ const selectedSize = size ?? (
                 toast.error(left === 0 ? (inCart ? `Only ${available} items available, all already in your cart` : "Sold out") : `Only ${left} items available`);
                 return;
               }
-              add({ productId: p.id, name: p.name, price: Number(p.price), image: p.image_url, size:selectedSize, quantity: qty });
+              add({ productId: p.id, name: p.name, price: Number(p.price), image: p.image_url, size: selectedSize, quantity: qty });
               toast.success("Added to cart");
             } catch {
               toast.error("Could not check stock, please try again");
@@ -99,7 +103,7 @@ const selectedSize = size ?? (
             }
           }}
         >
-          {p.stock < 1 ? "Sold out" : "Add to cart"}
+          {selectedLeft < 1 ? "Sold out" : "Add to cart"}
         </Button>
       </div>
     </div>
