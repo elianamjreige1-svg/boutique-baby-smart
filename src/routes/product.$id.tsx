@@ -63,9 +63,19 @@ function ProductPage() {
                     disabled={out}
                     title={out ? "Sold out" : undefined}
                     onClick={() => setSize(s)}
-                    className={`rounded-full border px-4 py-1.5 text-sm ${selectedSize === s ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"} ${out ? "cursor-not-allowed border-dashed bg-muted text-muted-foreground line-through opacity-70" : ""}`}
+                    className={`relative overflow-hidden rounded-full border px-4 py-1.5 text-sm ${selectedSize === s ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"} ${out ? "cursor-not-allowed border-dashed bg-muted text-muted-foreground opacity-70" : ""}`}
                   >
                     {s}
+                    {out && (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0"
+                        style={{
+                          background:
+                            "linear-gradient(to top right, transparent calc(50% - 0.7px), currentColor calc(50% - 0.7px), currentColor calc(50% + 0.7px), transparent calc(50% + 0.7px))",
+                        }}
+                      />
+                    )}
                   </button>
                 );
               })}
