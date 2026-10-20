@@ -66,7 +66,6 @@ function ProductPage() {
                     className={`rounded-full border px-4 py-1.5 text-sm ${selectedSize === s ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"} ${out ? "cursor-not-allowed border-dashed bg-muted text-muted-foreground line-through opacity-70" : ""}`}
                   >
                     {s}
-                    {out && <span className="ml-1 text-[10px] font-semibold uppercase no-underline">sold out</span>}
                   </button>
                 );
               })}
