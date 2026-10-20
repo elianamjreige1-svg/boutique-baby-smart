@@ -26,3 +26,15 @@ export function showStockAlert(problems: string[]) {
     ),
   });
 }
+
+/** Shows each form validation error as its own bullet line. */
+export function showFormErrors(errors: string[]) {
+  toast.error("Please fix the following", {
+    duration: 8000,
+    description: (
+      <ul className="mt-1 list-disc space-y-1 pl-4">
+        {errors.map((e) => <li key={e}>{e}</li>)}
+      </ul>
+    ),
+  });
+}
