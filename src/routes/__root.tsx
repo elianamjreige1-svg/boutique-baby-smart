@@ -135,7 +135,7 @@ function RootComponent() {
           <Outlet />
         </main>
         <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-          cuddlekids.lb · Cash on delivery only
+         © 2026 cuddlekids.lb | Designed & Developed by Karim Ishak
         </footer>
         <Toaster />
       </CartProvider>
