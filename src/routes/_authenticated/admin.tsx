@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -32,6 +33,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 const STATUSES = ["pending", "confirmed", "shipped"];
+const ORDER_TINT: Record<string, string> = {
+  pending: "bg-order-pending border-order-pending-border",
+  confirmed: "bg-order-confirmed border-order-confirmed-border",
+  shipped: "bg-order-shipped border-order-shipped-border",
+};
 
 // Multi-word "contains" search across a row's fields (case-insensitive).
 function matches(query: string, fields: Array<string | number | null | undefined>) {
@@ -503,7 +509,7 @@ function Orders() {
       ) : null}
       {visible.map((o) => (
 
-        <div key={o.id} className="rounded-2xl border border-border bg-card p-5">
+        <div key={o.id} className={cn("rounded-2xl border p-5", ORDER_TINT[o.status] ?? "bg-card border-border")}>
           <div className="flex items-start justify-between gap-4">
             <p className="min-w-0 flex-1 font-semibold">#{o.id.slice(0, 8)}</p>
             <Button

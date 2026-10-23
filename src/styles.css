@@ -61,6 +61,12 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-order-pending: var(--order-pending);
+  --color-order-pending-border: var(--order-pending-border);
+  --color-order-confirmed: var(--order-confirmed);
+  --color-order-confirmed-border: var(--order-confirmed-border);
+  --color-order-shipped: var(--order-shipped);
+  --color-order-shipped-border: var(--order-shipped-border);
 }
 
 :root {
@@ -99,6 +105,13 @@
   --sidebar-ring: oklch(0.64 0.11 40);
   --font-display: "Fraunces", Georgia, serif;
   --font-body: "Nunito Sans", system-ui, sans-serif;
+  /* Order status tints: pastel red / yellow / green */
+  --order-pending: oklch(0.945 0.042 25);
+  --order-pending-border: oklch(0.855 0.085 25);
+  --order-confirmed: oklch(0.955 0.075 95);
+  --order-confirmed-border: oklch(0.87 0.1 95);
+  --order-shipped: oklch(0.945 0.055 150);
+  --order-shipped-border: oklch(0.85 0.09 150);
 }
 
 @layer base {
