@@ -28,7 +28,7 @@
   --radius-4xl: calc(var(--radius) + 16px);
   --font-display: var(--font-display);
   --font-sans: var(--font-body);
-  --font-hero: "Space Grotesk", "Nunito Sans", system-ui, sans-serif;
+  --font-hero: "Bodoni Moda", "Fraunces", Georgia, serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
