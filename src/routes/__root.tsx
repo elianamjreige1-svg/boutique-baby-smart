@@ -134,8 +134,8 @@ function RootComponent() {
         <main className="min-h-[calc(100vh-4rem)]">
           <Outlet />
         </main>
-        <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-         © 2026 cuddlekids.lb | Designed & Developed by K. Ishak
+        <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
+         © 2026 cuddlekids.lb | Developed by K. Ishak
         </footer>
         <Toaster />
       </CartProvider>
