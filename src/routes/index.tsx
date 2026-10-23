@@ -53,11 +53,11 @@ function Shop() {
     <div className="mx-auto max-w-6xl px-4 py-12">
       <section className="mb-12 rounded-3xl bg-accent px-8 py-14 text-center">
         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary"></p>
-        <h1 className="mx-auto max-w-2xl text-4xl font-semibold text-accent-foreground md:text-6xl">
+        <h1 className="mx-auto max-w-2xl font-montserrat text-4xl font-semibold text-accent-foreground md:text-6xl">
          WELCOME TO CUDDLEKIDS.LB
         </h1>
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
-          Organic cotton, soft knits, honest prices.
+          Premium Quality at Prices You'll Love !
         </p>
         <div className="mt-6 flex flex-col items-center gap-3">
           <a href="tel:+96171613153" className="inline-block rounded-full bg-primary px-6 py-2 font-semibold text-primary-foreground">
