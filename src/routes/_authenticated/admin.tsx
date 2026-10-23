@@ -69,7 +69,7 @@ function Admin() {
   if (!isAdmin) return <p className="p-12 text-center">You don't have admin access.</p>;
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="mb-6 text-4xl font-semibold">Admin</h1>
+      <h1 className="mb-6 text-4xl font-semibold">Admin Panel</h1>
       <Tabs defaultValue="orders">
         <TabsList>
           <TabsTrigger value="orders">Orders</TabsTrigger>
