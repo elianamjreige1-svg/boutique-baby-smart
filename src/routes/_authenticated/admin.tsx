@@ -448,10 +448,17 @@ function Categories() {
 /* ---------------- Orders ---------------- */
 function Orders() {
   const qc = useQueryClient();
-  const { data: orders = [] } = useQuery({
+    const { data: orders = [] } = useQuery({
     queryKey: ["admin-orders"],
     queryFn: async () => (await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false })).data ?? [],
+    refetchOnWindowFocus: "always",
+    refetchInterval: 15000,
   });
+
+ /* const { data: orders = [] } = useQuery({
+    queryKey: ["admin-orders"],
+    queryFn: async () => (await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false })).data ?? [],
+  });*/
   const [q, setQ] = useState("");
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-orders"] });
 
