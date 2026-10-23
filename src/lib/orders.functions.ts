@@ -4,7 +4,7 @@ import { availableFor } from "@/lib/stock";
 
 const schema = z.object({
   customer_name: z.string().trim().min(2).max(100),
-  phone: z.string().trim().min(6).max(30),
+  phone: z.string().trim().min(8).max(30),
   address: z.string().trim().min(5).max(300),
   city: z.string().trim().min(2).max(100),
   notes: z.string().trim().max(500).default(""),
