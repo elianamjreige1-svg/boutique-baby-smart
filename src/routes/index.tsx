@@ -54,7 +54,7 @@ function Shop() {
       <section className="mb-12 rounded-3xl bg-accent px-8 py-14 text-center">
         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary"></p>
        <h1 className="mx-auto max-w-2xl font-hero text-accent-foreground">
-  <span className="block text-lg font-medium tracking-widest text-muted-foreground md:text-2xl mb-1">
+  <span className="relative -top-2 block text-lg font-medium tracking-widest text-muted-foreground md:text-2xl mb-1">
     WELCOME TO
   </span>
   <span className="block text-4xl font-bold md:text-6xl">
