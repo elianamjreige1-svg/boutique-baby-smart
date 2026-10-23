@@ -64,7 +64,7 @@ function Shop() {
 
 
 
-        <p className="mx-auto mt-4 max-w-md text-muted-foreground">
+        <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground">
           Premium Quality at Prices You'll Love !
         </p>
         <div className="mt-6 flex flex-col items-center gap-3">
