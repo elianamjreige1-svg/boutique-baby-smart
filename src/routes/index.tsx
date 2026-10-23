@@ -142,7 +142,7 @@ function Shop() {
           {shown.map((p) => {
             const isSoldOut = p.stock < 1;
             return (
-              <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="group">
+              <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="group text-center">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
                   {p.image_url && (
                     <img
