@@ -101,7 +101,7 @@ function useCategories() {
 
 /* ---------------- Products ---------------- */
 type Product = Tables<"products">;
-const emptyProduct = { name: "", description: "", price: "0", image_url: "", images: [] as string[], category_id: "", active: true, gender: "unisex", ages: [] as string[], qty: {} as Record<string, string> };
+const emptyProduct = { name: "", description: "", price: "", image_url: "", images: [] as string[], category_id: "", active: true, gender: "unisex", ages: [] as string[], qty: {} as Record<string, string> };
 const allPhotos = (p: { image_url: string | null; images?: string[] | null }) =>
   p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
 
@@ -387,7 +387,7 @@ function Products() {
                       className="h-8 w-20"
                       aria-label={`Quantity for ${a}`}
                       disabled={!f.ages.includes(a)}
-                      value={f.qty[a] ?? "0"}
+                      value={f.qty[a] ?? ""}
                       onChange={(e) => setF((cur) => ({ ...cur, qty: { ...cur.qty, [a]: e.target.value } }))}
                     />
                   </div>
