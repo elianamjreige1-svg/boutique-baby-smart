@@ -210,9 +210,10 @@ function Products() {
   const openEdit = (p: Product) => {
     setEditing(p);
     const ss = (p.size_stock ?? {}) as Record<string, number>;
+    const selected = p.sizes.length ? p.sizes.filter((s) => AGE_OPTIONS.includes(s)) : [p.age_group];
     const qty: Record<string, string> = {};
-    for (const a of AGE_OPTIONS) qty[a] = String(ss[a] ?? 0);
-    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", images: allPhotos(p), category_id: p.category_id ?? "", active: p.active, gender: p.gender, ages: p.sizes.length ? p.sizes.filter((s) => AGE_OPTIONS.includes(s)) : [p.age_group], qty });
+    for (const a of AGE_OPTIONS) qty[a] = selected.includes(a) ? String(ss[a] ?? 0) : "";
+    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", images: allPhotos(p), category_id: p.category_id ?? "", active: p.active, gender: p.gender, ages: selected, qty });
     setOpen(true);
   };
 /*  const save = async (e: React.FormEvent) => {
