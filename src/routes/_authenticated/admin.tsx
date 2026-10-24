@@ -107,7 +107,7 @@ const allPhotos = (p: { image_url: string | null; images?: string[] | null }) =>
   p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
 
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
-const AGE_OPTIONS = ["0-3M", "3-6M", "6-9M", "9-12M","1-1.5Y", "1.5-2Y", "2-4Y", "4-6Y", "6-8Y", "8-10Y", "All ages"];
+const AGE_OPTIONS = ["0-3M", "3-6M", "6-9M", "9-12M","12-18M", "18-24M", "2-4Y", "4-6Y", "6-8Y", "8-10Y", "All ages"];
 
 type Pending = { opt: Optimized; preview: string; name: string };
 
@@ -424,7 +424,7 @@ function Products() {
                     <Input
                       type="number"
                       min="0"
-                      className="h-8 w-20"
+                      className="h-8 w-16"
                       aria-label={`Quantity for ${a}`}
                       disabled={!f.ages.includes(a)}
                       value={f.qty[a] ?? ""}
