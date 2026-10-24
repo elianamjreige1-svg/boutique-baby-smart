@@ -5,6 +5,8 @@ import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { money } from "@/lib/cart";
 
+import { matchesAge } from "@/lib/age-filter";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -48,7 +50,15 @@ function Shop() {
     .filter((c) => c.name.toLowerCase().startsWith("accessor"))
     .map((c) => c.id)
 );
+
+  const shown = products.filter(
+  (p) =>
+    (cat ? p.category_id === cat : !accessoryCategoryIds.has(p.category_id ?? "")) &&
+    (!gender || p.gender === gender || p.gender === "unisex") &&
+    matchesAge(age, p.sizes, p.age_group),
+);
   
+ /* 
   const shown = products.filter(
     (p) =>
       (cat
@@ -57,7 +67,7 @@ function Shop() {
       (!gender || p.gender === gender || p.gender === "unisex") &&
       (!age || p.age_group === age || p.sizes.includes(age) || p.sizes.includes("All ages")),
   );
-
+*/
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <section className="mb-12 rounded-3xl bg-accent px-8 py-14 text-center">
