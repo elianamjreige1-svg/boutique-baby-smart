@@ -1,5 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { PHOTO_URL_PREFIX, photoPath, photoToDeleteOnSave } from "@/lib/product-photo";
+import { deleteProductPhotos } from "@/lib/product-photo.functions";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
@@ -296,7 +297,7 @@ function Products() {
     if (editing) {
       const before = allPhotos(editing);
       const old = before.filter((u) => !row.images.includes(u)).map(photoPath).filter((x): x is string => !!x);
-      if (old.length) await supabase.storage.from("product-images").remove(old);
+      if (old.length) await deleteProductPhotos({ data: old });
     }
     toast.success("Product saved");
     setOpen(false);
@@ -307,10 +308,11 @@ function Products() {
     const { error } = await supabase.from("products").delete().eq("id", p.id);
     if (error) { toast.error(error.message); return; }
     const photos = allPhotos(p).map(photoPath).filter((x): x is string => !!x);
-    if (photos.length) await supabase.storage.from("product-images").remove(photos);
+    if (photos.length) await deleteProductPhotos({ data: photos });
     toast.success("Deleted");
     refresh();
   };
+
 
   return (
     <div className="mt-4">
