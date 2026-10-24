@@ -108,77 +108,114 @@ const allPhotos = (p: { image_url: string | null; images?: string[] | null }) =>
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
 const AGE_OPTIONS = ["0-3M", "3-6M", "6-9M", "9-12M","1-1.5Y", "1.5-2Y", "2-4Y", "4-6Y", "6-8Y", "8-10Y", "All ages"];
 
-type Pending = { opt: Optimized; preview: string };
+type Pending = { opt: Optimized; preview: string; name: string };
 
 function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url: string) => void; onBusy: (b: boolean) => void }) {
-  const [pending, setPending] = useState<Pending | null>(null);
+  const [pending, setPending] = useState<Pending[]>([]);
   const [state, setState] = useState<"idle" | "working" | "uploading" | "error">("idle");
   const [err, setErr] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const reset = () => {
-    if (pending) URL.revokeObjectURL(pending.preview);
-    setPending(null); setState("idle"); setErr(""); onBusy(false);
+    pending.forEach((p) => URL.revokeObjectURL(p.preview));
+    setPending([]); setState("idle"); setErr(""); onBusy(false);
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const pick = async (file?: File) => {
-    if (!file) return;
-    if (pending) URL.revokeObjectURL(pending.preview);
+  const drop = (target: Pending) => {
+    URL.revokeObjectURL(target.preview);
+    const left = pending.filter((p) => p !== target);
+    setPending(left);
+    if (!left.length) { setState("idle"); onBusy(false); }
+  };
+
+  const pick = async (files: File[]) => {
+    const imgs = files.filter((f) => f.type.startsWith("image/"));
+    if (!imgs.length) return;
     setState("working"); setErr(""); onBusy(true);
-    try {
-      const opt = await optimizeImage(file);
-      setPending({ opt, preview: URL.createObjectURL(opt.blob) });
-      setState("idle");
-    } catch {
-      setPending(null); setState("idle"); onBusy(false);
-      toast.error("Could not read this photo");
+    const next: Pending[] = [];
+    let failed = 0;
+    for (const file of imgs) {
+      try {
+        const opt = await optimizeImage(file);
+        next.push({ opt, preview: URL.createObjectURL(opt.blob), name: file.name });
+      } catch {
+        failed += 1;
+      }
     }
+    if (failed) toast.error(`Could not read ${failed} photo${failed > 1 ? "s" : ""}`);
+    if (next.length) setPending((cur) => [...cur, ...next]);
+    setState("idle");
+    if (!next.length) onBusy(false);
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   const upload = async () => {
-    if (!pending) return;
+    if (!pending.length) return;
     setState("uploading"); setErr("");
-    const ext = pending.opt.type === "image/webp" ? "webp" : pending.opt.type === "image/png" ? "png" : "jpg";
-    const path = `${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, pending.opt.blob, { contentType: pending.opt.type, cacheControl: "31536000" });
-    if (!error) {
-      onChange(PHOTO_URL_PREFIX + path);
-    } else if (/bucket not found/i.test(error.message)) {
-      // File storage not available yet: keep the optimized photo inside the product record.
-      onChange(await blobToDataUrl(pending.opt.blob));
-    } else {
-      setState("error"); setErr(error.message); return;
+    const done: Pending[] = [];
+    const left: Pending[] = [];
+    let lastErr = "";
+    for (const p of pending) {
+      const ext = p.opt.type === "image/webp" ? "webp" : p.opt.type === "image/png" ? "png" : "jpg";
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from("product-images").upload(path, p.opt.blob, { contentType: p.opt.type, cacheControl: "31536000" });
+      if (!error) {
+        onChange(PHOTO_URL_PREFIX + path);
+        done.push(p);
+      } else if (/bucket not found/i.test(error.message)) {
+        // File storage not available yet: keep the optimized photo inside the product record.
+        onChange(await blobToDataUrl(p.opt.blob));
+        done.push(p);
+      } else {
+        lastErr = error.message;
+        left.push(p);
+      }
     }
-    URL.revokeObjectURL(pending.preview);
-    setPending(null); setState("idle"); onBusy(false);
+    done.forEach((p) => URL.revokeObjectURL(p.preview));
+    if (left.length) {
+      setPending(left); setState("error"); setErr(lastErr); return;
+    }
+    setPending([]); setState("idle"); onBusy(false);
     if (inputRef.current) inputRef.current.value = "";
-    toast.success("Photo ready");
+    toast.success(done.length > 1 ? `${done.length} photos ready` : "Photo ready");
   };
 
   return (
     <div className="space-y-2">
-      <Label>Photo</Label>
-      {pending ? (
+      <Label>Add photos</Label>
+      {pending.length ? (
         <div className="space-y-2 rounded-xl border border-border p-3">
-          <img src={pending.preview} alt="Optimized preview" className="h-40 w-auto rounded object-contain" />
+          <div className="flex flex-wrap gap-3">
+            {pending.map((p) => (
+              <div key={p.preview} className="space-y-1">
+                <div className="relative">
+                  <img src={p.preview} alt="Optimized preview" className="h-24 w-20 rounded object-cover" />
+                  {state !== "uploading" && (
+                    <button type="button" aria-label={`Remove ${p.name}`} onClick={() => drop(p)} className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-background text-xs text-destructive shadow">×</button>
+                  )}
+                </div>
+                <p className="w-20 truncate text-[10px] text-muted-foreground">{formatBytes(p.opt.blob.size)}</p>
+              </div>
+            ))}
+          </div>
           <p className="text-xs text-muted-foreground">
-            {pending.opt.width}×{pending.opt.height} · {formatBytes(pending.opt.blob.size)} {pending.opt.type === "image/webp" ? "WebP" : pending.opt.type.split("/")[1]?.toUpperCase()} (was {formatBytes(pending.opt.originalBytes)})
+            {pending.length} photo{pending.length > 1 ? "s" : ""} ready · {formatBytes(pending.reduce((s, p) => s + p.opt.blob.size, 0))} total
           </p>
           {state === "error" && <p className="text-xs text-destructive">Upload failed: {err}</p>}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" className="rounded-full" disabled={state === "uploading"} onClick={upload}>
-              {state === "uploading" ? "Uploading…" : state === "error" ? "Retry" : "Upload"}
+              {state === "uploading" ? "Uploading…" : state === "error" ? "Retry" : `Upload ${pending.length > 1 ? `${pending.length} photos` : "photo"}`}
             </Button>
-            <Button type="button" size="sm" variant="outline" className="rounded-full" disabled={state === "uploading"} onClick={() => inputRef.current?.click()}>Choose another</Button>
+            <Button type="button" size="sm" variant="outline" className="rounded-full" disabled={state === "uploading"} onClick={() => inputRef.current?.click()}>Add more</Button>
             <Button type="button" size="sm" variant="ghost" disabled={state === "uploading"} onClick={reset}>Cancel</Button>
           </div>
         </div>
       ) : (
         value && <img src={value} alt="" className="h-32 w-28 rounded object-cover" />
       )}
-      <Input ref={inputRef} type="file" accept="image/*" className={pending ? "hidden" : ""} onChange={(e) => pick(e.target.files?.[0])} />
-      <p className="text-xs text-muted-foreground">{state === "working" ? "Optimizing photo…" : "Tap to choose a photo from your gallery."}</p>
+      <Input ref={inputRef} type="file" accept="image/*" multiple className={pending.length ? "hidden" : ""} onChange={(e) => { pick(Array.from(e.target.files ?? [])); }} />
+      <p className="text-xs text-muted-foreground">{state === "working" ? "Optimizing photos…" : "Tap to choose one or more photos from your gallery."}</p>
     </div>
   );
 }
