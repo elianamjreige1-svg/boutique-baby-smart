@@ -70,13 +70,13 @@ function Shop() {
 */
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <section className="mb-12 rounded-3xl bg-accent px-8 py-14 text-center">
+     <section className="mb-12 min-w-0 rounded-3xl bg-accent px-4 py-10 text-center sm:px-8 sm:py-14">
         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary"></p>
-       <h1 className="mx-auto max-w-2xl font-hero text-accent-foreground">
-  <span className="relative -top-2 block text-lg font-medium tracking-widest text-muted-foreground md:text-2xl mb-1">
+      <h1 className="mx-auto w-full max-w-2xl min-w-0 font-hero text-accent-foreground">
+  <span className="relative -top-2 mb-1 block text-lg font-medium tracking-widest text-muted-foreground md:text-2xl">
     WELCOME TO
   </span>
-  <span className="block text-4xl font-bold md:text-6xl">
+  <span className="block whitespace-nowrap text-[clamp(1.65rem,7.5vw,3.75rem)] font-bold leading-tight">
     CUDDLEKIDS.LB
   </span>
 </h1>
