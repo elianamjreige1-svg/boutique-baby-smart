@@ -42,9 +42,18 @@ function Shop() {
     queryFn: async () =>
       (await supabase.from("products").select("*").eq("active", true).order("created_at", { ascending: false })).data ?? [],
   });
+
+  const accessoryCategoryIds = new Set(
+  categories
+    .filter((c) => c.name.toLowerCase().startsWith("accessor"))
+    .map((c) => c.id)
+);
+  
   const shown = products.filter(
     (p) =>
-      (!cat || p.category_id === cat) &&
+      (cat
+  ? p.category_id === cat : !accessoryCategoryIds.has(p.category_id ?? "")) &&
+     // (!cat || p.category_id === cat) &&
       (!gender || p.gender === gender || p.gender === "unisex") &&
       (!age || p.age_group === age || p.sizes.includes(age) || p.sizes.includes("All ages")),
   );
