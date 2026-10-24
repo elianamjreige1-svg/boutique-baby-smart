@@ -424,7 +424,7 @@ function Products() {
                     <Input
                       type="number"
                       min="0"
-                      className="h-8 w-16"
+                      className="h-8 w-18"
                       aria-label={`Quantity for ${a}`}
                       disabled={!f.ages.includes(a)}
                       value={f.qty[a] ?? ""}
