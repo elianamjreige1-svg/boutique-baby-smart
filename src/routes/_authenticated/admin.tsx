@@ -1,5 +1,5 @@
 import { Checkbox } from "@/components/ui/checkbox";
-import { PHOTO_URL_PREFIX, photoPath, photoToDeleteOnSave } from "@/lib/product-photo";
+import { PHOTO_URL_PREFIX, photoPath } from "@/lib/product-photo";
 import { deleteProductPhotos } from "@/lib/product-photo.functions";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -60,15 +60,18 @@ function SearchBar({ value, onChange, placeholder }: { value: string; onChange: 
         aria-label={placeholder}
       />
       {value && (
-        <button type="button" onClick={() => onChange("")} aria-label="Clear search"
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted">
+        <button
+          type="button"
+          onClick={() => onChange("")}
+          aria-label="Clear search"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
+        >
           <X className="h-4 w-4" />
         </button>
       )}
     </div>
   );
 }
-
 
 function Admin() {
   const { isAdmin, ready } = useSession();
@@ -102,12 +105,24 @@ function useCategories() {
 
 /* ---------------- Products ---------------- */
 type Product = Tables<"products">;
-const emptyProduct = { name: "", description: "", price: "", image_url: "", images: [] as string[], category_id: "", active: true, gender: "unisex", ages: [] as string[], qty: {} as Record<string, string> };
+
+const emptyProduct = {
+  name: "",
+  description: "",
+  price: "",
+  image_url: "",
+  images: [] as string[],
+  category_id: "",
+  active: true,
+  gender: "unisex",
+  ages: [] as string[],
+  qty: {} as Record<string, string>,
+};
+
 const allPhotos = (p: { image_url: string | null; images?: string[] | null }) =>
   p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
 
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
-const AGE_OPTIONS = ["0-3M", "3-6M", "6-9M", "9-12M","12-18M", "18-24M", "2-4Y", "4-6Y", "6-8Y", "8-10Y", "All ages"];
 
 type Pending = { opt: Optimized; preview: string; name: string };
 
@@ -119,7 +134,10 @@ function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url
 
   const reset = () => {
     pending.forEach((p) => URL.revokeObjectURL(p.preview));
-    setPending([]); setState("idle"); setErr(""); onBusy(false);
+    setPending([]);
+    setState("idle");
+    setErr("");
+    onBusy(false);
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -127,13 +145,18 @@ function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url
     URL.revokeObjectURL(target.preview);
     const left = pending.filter((p) => p !== target);
     setPending(left);
-    if (!left.length) { setState("idle"); onBusy(false); }
+    if (!left.length) {
+      setState("idle");
+      onBusy(false);
+    }
   };
 
   const pick = async (files: File[]) => {
     const imgs = files.filter((f) => f.type.startsWith("image/"));
     if (!imgs.length) return;
-    setState("working"); setErr(""); onBusy(true);
+    setState("working");
+    setErr("");
+    onBusy(true);
     const next: Pending[] = [];
     let failed = 0;
     for (const file of imgs) {
@@ -153,7 +176,8 @@ function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url
 
   const upload = async () => {
     if (!pending.length) return;
-    setState("uploading"); setErr("");
+    setState("uploading");
+    setErr("");
     const done: Pending[] = [];
     const left: Pending[] = [];
     let lastErr = "";
@@ -165,7 +189,6 @@ function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url
         onChange(PHOTO_URL_PREFIX + path);
         done.push(p);
       } else if (/bucket not found/i.test(error.message)) {
-        // File storage not available yet: keep the optimized photo inside the product record.
         onChange(await blobToDataUrl(p.opt.blob));
         done.push(p);
       } else {
@@ -175,9 +198,14 @@ function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url
     }
     done.forEach((p) => URL.revokeObjectURL(p.preview));
     if (left.length) {
-      setPending(left); setState("error"); setErr(lastErr); return;
+      setPending(left);
+      setState("error");
+      setErr(lastErr);
+      return;
     }
-    setPending([]); setState("idle"); onBusy(false);
+    setPending([]);
+    setState("idle");
+    onBusy(false);
     if (inputRef.current) inputRef.current.value = "";
     toast.success(done.length > 1 ? `${done.length} photos ready` : "Photo ready");
   };
@@ -193,7 +221,14 @@ function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url
                 <div className="relative">
                   <img src={p.preview} alt="Optimized preview" className="h-24 w-20 rounded object-cover" />
                   {state !== "uploading" && (
-                    <button type="button" aria-label={`Remove ${p.name}`} onClick={() => drop(p)} className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-background text-xs text-destructive shadow">×</button>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${p.name}`}
+                      onClick={() => drop(p)}
+                      className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-background text-xs text-destructive shadow"
+                    >
+                      ×
+                    </button>
                   )}
                 </div>
                 <p className="w-20 truncate text-[10px] text-muted-foreground">{formatBytes(p.opt.blob.size)}</p>
@@ -208,15 +243,30 @@ function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url
             <Button type="button" size="sm" className="rounded-full" disabled={state === "uploading"} onClick={upload}>
               {state === "uploading" ? "Uploading…" : state === "error" ? "Retry" : `Upload ${pending.length > 1 ? `${pending.length} photos` : "photo"}`}
             </Button>
-            <Button type="button" size="sm" variant="outline" className="rounded-full" disabled={state === "uploading"} onClick={() => inputRef.current?.click()}>Add more</Button>
-            <Button type="button" size="sm" variant="ghost" disabled={state === "uploading"} onClick={reset}>Cancel</Button>
+            <Button type="button" size="sm" variant="outline" className="rounded-full" disabled={state === "uploading"} onClick={() => inputRef.current?.click()}>
+              Add more
+            </Button>
+            <Button type="button" size="sm" variant="ghost" disabled={state === "uploading"} onClick={reset}>
+              Cancel
+            </Button>
           </div>
         </div>
       ) : (
         value && <img src={value} alt="" className="h-32 w-28 rounded object-cover" />
       )}
-      <Input ref={inputRef} type="file" accept="image/*" multiple className={pending.length ? "hidden" : ""} onChange={(e) => { pick(Array.from(e.target.files ?? [])); }} />
-      <p className="text-xs text-muted-foreground">{state === "working" ? "Optimizing photos…" : "Tap to choose one or more photos from your gallery."}</p>
+      <Input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className={pending.length ? "hidden" : ""}
+        onChange={(e) => {
+          pick(Array.from(e.target.files ?? []));
+        }}
+      />
+      <p className="text-xs text-muted-foreground">
+        {state === "working" ? "Optimizing photos…" : "Tap to choose one or more photos from your gallery."}
+      </p>
     </div>
   );
 }
@@ -234,30 +284,105 @@ function Products() {
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // New age range input state
+  const [newAge, setNewAge] = useState("");
+  const [newQty, setNewQty] = useState("1");
+
   const catName = (id: string | null) => cats.find((c) => c.id === id)?.name ?? "";
   const visible = products.filter((p) =>
     matches(q, [p.name, p.description, p.gender, p.age_group, p.sizes.join(" "), catName(p.category_id)]),
   );
 
-
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["admin-products"] });
     qc.invalidateQueries({ queryKey: ["products"] });
   };
-  const openNew = () => { setEditing(null); setF(emptyProduct); setOpen(true); };
+
+  const openNew = () => {
+    setEditing(null);
+    setF(emptyProduct);
+    setNewAge("");
+    setNewQty("1");
+    setOpen(true);
+  };
+
   const openEdit = (p: Product) => {
     setEditing(p);
     const ss = (p.size_stock ?? {}) as Record<string, number>;
-    const selected = p.sizes.length ? p.sizes.filter((s) => AGE_OPTIONS.includes(s)) : [p.age_group];
+    const selected = p.sizes.length ? p.sizes : (p.age_group ? [p.age_group] : []);
     const qty: Record<string, string> = {};
-    for (const a of AGE_OPTIONS) qty[a] = selected.includes(a) ? String(ss[a] ?? 0) : "";
-    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", images: allPhotos(p), category_id: p.category_id ?? "", active: p.active, gender: p.gender, ages: selected, qty });
+    for (const a of selected) qty[a] = String(ss[a] ?? 0);
+    setF({
+      name: p.name,
+      description: p.description,
+      price: String(p.price),
+      image_url: p.image_url ?? "",
+      images: allPhotos(p),
+      category_id: p.category_id ?? "",
+      active: p.active,
+      gender: p.gender,
+      ages: selected,
+      qty,
+    });
+    setNewAge("");
+    setNewQty("1");
     setOpen(true);
   };
-/*  const save = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (f.ages.length === 0) { toast.error("Please check at least one age"); return; }*/
-    const save = async (e: React.FormEvent) => {
+
+  const handleAddAge = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = newAge.trim();
+    if (!trimmed) {
+      toast.error("Please enter an age range");
+      return;
+    }
+    if (f.ages.includes(trimmed)) {
+      toast.error("This age range is already added");
+      return;
+    }
+    const qtyVal = String(Math.max(0, parseInt(newQty) || 1));
+    setF((cur) => ({
+      ...cur,
+      ages: [...cur.ages, trimmed],
+      qty: { ...cur.qty, [trimmed]: qtyVal },
+    }));
+    setNewAge("");
+    setNewQty("1");
+  };
+
+  const handleRemoveAge = (age: string) => {
+    setF((cur) => {
+      const nextQty = { ...cur.qty };
+      delete nextQty[age];
+      return {
+        ...cur,
+        ages: cur.ages.filter((a) => a !== age),
+        qty: nextQty,
+      };
+    });
+  };
+
+  const toggleAllAges = (checked: boolean) => {
+    setF((cur) => {
+      if (checked) {
+        return {
+          ...cur,
+          ages: cur.ages.includes("All ages") ? cur.ages : [...cur.ages, "All ages"],
+          qty: { ...cur.qty, "All ages": cur.qty["All ages"] || "1" },
+        };
+      } else {
+        const nextQty = { ...cur.qty };
+        delete nextQty["All ages"];
+        return {
+          ...cur,
+          ages: cur.ages.filter((a) => a !== "All ages"),
+          qty: nextQty,
+        };
+      }
+    });
+  };
+
+  const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!f.category_id) {
       toast.error("Please select a category");
@@ -268,13 +393,14 @@ function Products() {
       return;
     }
     if (f.ages.length === 0) {
-      toast.error("Please check at least one age");
+      toast.error("Please add at least one age range or check 'All ages'");
       return;
     }
 
-    const ages = AGE_OPTIONS.filter((a) => f.ages.includes(a));
+    const ages = f.ages;
     const size_stock: Record<string, number> = {};
     for (const a of ages) size_stock[a] = Math.max(0, parseInt(f.qty[a] ?? "0") || 0);
+
     const main = f.images.includes(f.image_url) ? f.image_url : f.images[0] ?? null;
     const row = {
       name: f.name.trim(),
@@ -288,153 +414,305 @@ function Products() {
       stock: Object.values(size_stock).reduce((s, n) => s + n, 0),
       active: true,
       gender: f.gender,
-      age_group: ages[0] ?? "0-3m",
+      age_group: ages[0] ?? "All ages",
     };
+
     const { error } = editing
       ? await supabase.from("products").update(row).eq("id", editing.id)
       : await supabase.from("products").insert(row);
-    if (error) { toast.error(error.message); return; }
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
     if (editing) {
       const before = allPhotos(editing);
       const old = before.filter((u) => !row.images.includes(u)).map(photoPath).filter((x): x is string => !!x);
       if (old.length) await deleteProductPhotos({ data: old });
     }
+
     toast.success("Product saved");
     setOpen(false);
     refresh();
   };
+
   const del = async (p: Product) => {
     if (!confirm(`Delete "${p.name}"?`)) return;
     const { error } = await supabase.from("products").delete().eq("id", p.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     const photos = allPhotos(p).map(photoPath).filter((x): x is string => !!x);
     if (photos.length) await deleteProductPhotos({ data: photos });
     toast.success("Deleted");
     refresh();
   };
 
-
   return (
     <div className="mt-4">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <Button onClick={openNew} className="rounded-full sm:w-auto"><Plus className="h-4 w-4" /> New product</Button>
-        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder="Search products by name, size, age, category…" /></div>
+        <Button onClick={openNew} className="rounded-full sm:w-auto">
+          <Plus className="h-4 w-4" /> New product
+        </Button>
+        <div className="flex-1">
+          <SearchBar value={q} onChange={setQ} placeholder="Search products by name, size, age, category…" />
+        </div>
         <p className="text-sm text-muted-foreground">{visible.length} of {products.length}</p>
       </div>
+
       {visible.length === 0 ? (
         <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">
           {q ? `No products match “${q}”.` : "No products yet."}
         </p>
       ) : (
-      <div className="overflow-x-auto rounded-2xl border border-border bg-card">
-        <table className="w-full text-sm">
-         <thead className="bg-muted text-left">
-  <tr>
-    <th className="p-3">Product</th>
-    <th className="p-3 pr-6">Price</th>
-    <th className="p-3 pl-6">Stock</th>
-    <th className="p-3" />
-  </tr>
-</thead>
-          <tbody>
-            {visible.map((p) => (
-
-              <tr key={p.id} className="border-t border-border">
-                <td className="flex items-center gap-3 p-3">
-                  <div className="h-12 w-10 overflow-hidden rounded bg-muted">{p.image_url && <img src={p.image_url} alt="" className="h-full w-full object-cover" />}</div>
-                  {p.name}
-                </td>
-               <td className="p-3 pr-6">{money(Number(p.price))}</td>
-                <td className="min-w-[140px] p-3 pl-6 align-top">
-                  <div className="font-semibold whitespace-nowrap">Total: {p.stock}</div>
-                  {p.sizes.length > 0 && (
-                    <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
-                      {p.sizes.map((s) => (
-                        <li key={s} className="whitespace-nowrap">
-                          <span>{s}: </span>
-                          <span className="font-medium text-foreground">{(p.size_stock as Record<string, number>)?.[s] ?? 0}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </td>
-                <td className="p-3 text-right">
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => del(p)}><Trash2 className="h-4 w-4" /></Button>
-                </td>
+        <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+          <table className="w-full text-sm">
+            <thead className="bg-muted text-left">
+              <tr>
+                <th className="p-3">Product</th>
+                <th className="p-3 pr-6">Price</th>
+                <th className="p-3 pl-6">Stock</th>
+                <th className="p-3" />
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {visible.map((p) => (
+                <tr key={p.id} className="border-t border-border">
+                  <td className="flex items-center gap-3 p-3">
+                    <div className="h-12 w-10 overflow-hidden rounded bg-muted">
+                      {p.image_url && <img src={p.image_url} alt="" className="h-full w-full object-cover" />}
+                    </div>
+                    {p.name}
+                  </td>
+                  <td className="p-3 pr-6">{money(Number(p.price))}</td>
+                  <td className="min-w-[140px] p-3 pl-6 align-top">
+                    <div className="font-semibold whitespace-nowrap">Total: {p.stock}</div>
+                    {p.sizes.length > 0 && (
+                      <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                        {p.sizes.map((s) => (
+                          <li key={s} className="whitespace-nowrap">
+                            <span>{s}: </span>
+                            <span className="font-medium text-foreground">
+                              {(p.size_stock as Record<string, number>)?.[s] ?? 0}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </td>
+                  <td className="p-3 text-right">
+                    <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => del(p)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? "Edit product" : "New product"}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit product" : "New product"}</DialogTitle>
+          </DialogHeader>
           <form onSubmit={save} className="space-y-3">
-            <div className="space-y-1"><Label>Name</Label><Input required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
-            <div className="space-y-1"><Label>Description (optional)</Label><Textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
-            <div className="space-y-1"><Label>Price</Label><Input type="number" step="0.01" min="0" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
+            <div className="space-y-1">
+              <Label>Name</Label>
+              <Input required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Description (optional)</Label>
+              <Textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Price</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={f.price}
+                onChange={(e) => setF({ ...f, price: e.target.value })}
+              />
+            </div>
             {f.images.length > 0 && (
               <div className="space-y-1">
                 <Label>Photos (tap "Main" to choose the shop photo)</Label>
                 <div className="flex flex-wrap gap-2">
                   {f.images.map((url) => (
-                    <div key={url} className={`w-24 rounded-lg border-2 p-1 ${f.image_url === url ? "border-primary" : "border-border"}`}>
+                    <div
+                      key={url}
+                      className={`w-24 rounded-lg border-2 p-1 ${f.image_url === url ? "border-primary" : "border-border"}`}
+                    >
                       <img src={url} alt="" className="h-24 w-full rounded object-cover" />
                       <div className="mt-1 flex justify-between text-xs">
-                        <button type="button" className={f.image_url === url ? "font-semibold text-primary" : "text-muted-foreground"} onClick={() => setF((cur) => ({ ...cur, image_url: url }))}>
+                        <button
+                          type="button"
+                          className={f.image_url === url ? "font-semibold text-primary" : "text-muted-foreground"}
+                          onClick={() => setF((cur) => ({ ...cur, image_url: url }))}
+                        >
                           {f.image_url === url ? "★ Main" : "Main"}
                         </button>
-                        <button type="button" className="text-destructive" onClick={() => setF((cur) => { const images = cur.images.filter((x) => x !== url); return { ...cur, images, image_url: cur.image_url === url ? images[0] ?? "" : cur.image_url }; })}>Remove</button>
+                        <button
+                          type="button"
+                          className="text-destructive"
+                          onClick={() =>
+                            setF((cur) => {
+                              const images = cur.images.filter((x) => x !== url);
+                              return {
+                                ...cur,
+                                images,
+                                image_url: cur.image_url === url ? images[0] ?? "" : cur.image_url,
+                              };
+                            })
+                          }
+                        >
+                          Remove
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-            <PhotoField value="" onChange={(url) => setF((cur) => ({ ...cur, images: [...cur.images, url], image_url: cur.image_url || url }))} onBusy={setBusy} />
+            <PhotoField
+              value=""
+              onChange={(url) => setF((cur) => ({ ...cur, images: [...cur.images, url], image_url: cur.image_url || url }))}
+              onBusy={setBusy}
+            />
             <div className="space-y-1">
               <Label>Category</Label>
-              <select required className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.category_id} onChange={(e) => setF({ ...f, category_id: e.target.value })}>
+              <select
+                required
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={f.category_id}
+                onChange={(e) => setF({ ...f, category_id: e.target.value })}
+              >
                 <option value="">Select a category</option>
-                {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {cats.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
               </select>
             </div>
             <div className="space-y-1">
               <Label>For</Label>
-              <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value })}>
-                {GENDER_OPTIONS.map((g) => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={f.gender}
+                onChange={(e) => setF({ ...f, gender: e.target.value })}
+              >
+                {GENDER_OPTIONS.map((g) => (
+                  <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>
+                ))}
               </select>
             </div>
-            <div className="space-y-2">
-              <Label>Ages and quantity per age</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {AGE_OPTIONS.map((a) => (
-                  <div key={a} className="flex items-center gap-2 text-sm">
-                    <label className="flex flex-1 items-center gap-2">
-                      <Checkbox
-                        checked={f.ages.includes(a)}
-                        onCheckedChange={(v) => setF((cur) => ({ ...cur, ages: v ? [...cur.ages, a] : cur.ages.filter((x) => x !== a) }))}
-                      />
-                      {a}
-                    </label>
+
+            {/* Ages & Quantities */}
+            <div className="space-y-3">
+              <Label>Ages and quantity</Label>
+
+              {/* "All ages" checkbox */}
+              <div className="flex items-center justify-between rounded-lg border border-border p-3">
+                <label className="flex items-center gap-2 cursor-pointer font-medium text-sm">
+                  <Checkbox
+                    checked={f.ages.includes("All ages")}
+                    onCheckedChange={(v) => toggleAllAges(Boolean(v))}
+                  />
+                  All ages
+                </label>
+                {f.ages.includes("All ages") && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Qty:</span>
                     <Input
                       type="number"
                       min="0"
-                      className="h-8 w-18"
-                      aria-label={`Quantity for ${a}`}
-                      disabled={!f.ages.includes(a)}
-                      value={f.qty[a] ?? ""}
-                      onChange={(e) => setF((cur) => ({ ...cur, qty: { ...cur.qty, [a]: e.target.value } }))}
+                      className="h-8 w-20 text-center"
+                      value={f.qty["All ages"] ?? "1"}
+                      onChange={(e) =>
+                        setF((cur) => ({
+                          ...cur,
+                          qty: { ...cur.qty, "All ages": e.target.value },
+                        }))
+                      }
                     />
                   </div>
-                ))}
+                )}
               </div>
+
+              {/* Add custom age range and quantity */}
+              <div className="flex items-end gap-2 pt-1">
+                <div className="flex-1 space-y-1">
+                  <span className="text-xs text-muted-foreground">Age range</span>
+                  <Input
+                    placeholder="e.g. 0-3M, 3-6M, 1-2Y"
+                    value={newAge}
+                    onChange={(e) => setNewAge(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleAddAge(e);
+                    }}
+                  />
+                </div>
+                <div className="w-24 space-y-1">
+                  <span className="text-xs text-muted-foreground">Quantity</span>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={newQty}
+                    onChange={(e) => setNewQty(e.target.value)}
+                  />
+                </div>
+                <Button type="button" variant="secondary" onClick={handleAddAge}>
+                  <Plus className="h-4 w-4 mr-1" /> Add
+                </Button>
+              </div>
+
+              {/* List of specific added ages */}
+              {f.ages.filter((a) => a !== "All ages").length > 0 && (
+                <div className="space-y-2 rounded-lg border border-border p-3">
+                  {f.ages
+                    .filter((a) => a !== "All ages")
+                    .map((a) => (
+                      <div key={a} className="flex items-center justify-between gap-3 text-sm">
+                        <span className="font-medium">{a}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Qty:</span>
+                          <Input
+                            type="number"
+                            min="0"
+                            className="h-8 w-20 text-center"
+                            value={f.qty[a] ?? ""}
+                            onChange={(e) =>
+                              setF((cur) => ({
+                                ...cur,
+                                qty: { ...cur.qty, [a]: e.target.value },
+                              }))
+                            }
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                            onClick={() => handleRemoveAge(a)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
-            <Button type="submit" disabled={busy} className="w-full rounded-full">{busy ? "Finish the photo first…" : "Save"}</Button>
+
+            <Button type="submit" disabled={busy} className="w-full rounded-full">
+              {busy ? "Finish the photo first…" : "Save"}
+            </Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -453,20 +731,32 @@ function Categories() {
     e.preventDefault();
     if (!name.trim()) return;
     const { error } = await supabase.from("categories").insert({ name: name.trim() });
-    if (error) { toast.error(error.message); return; }
-    setName(""); refresh();
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setName("");
+    refresh();
   };
+
   const rename = async (id: string, current: string) => {
     const n = prompt("New name", current);
     if (!n?.trim()) return;
     const { error } = await supabase.from("categories").update({ name: n.trim() }).eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     refresh();
   };
+
   const del = async (id: string) => {
     if (!confirm("Delete this category? Products will stay but lose the category.")) return;
     const { error } = await supabase.from("categories").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     refresh();
   };
 
@@ -481,8 +771,12 @@ function Categories() {
           <li key={c.id} className="flex items-center justify-between p-3">
             {c.name}
             <span>
-              <Button variant="ghost" size="icon" onClick={() => rename(c.id, c.name)}><Pencil className="h-4 w-4" /></Button>
-              <Button variant="ghost" size="icon" onClick={() => del(c.id)}><Trash2 className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => rename(c.id, c.name)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => del(c.id)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </span>
           </li>
         ))}
@@ -494,27 +788,34 @@ function Categories() {
 /* ---------------- Orders ---------------- */
 function Orders() {
   const qc = useQueryClient();
-    const { data: orders = [] } = useQuery({
+  const { data: orders = [] } = useQuery({
     queryKey: ["admin-orders"],
-    queryFn: async () => (await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("orders")
+          .select("*, order_items(*)")
+          .order("created_at", { ascending: false })
+      ).data ?? [],
     refetchOnWindowFocus: "always",
     refetchInterval: 15000,
   });
 
- /* const { data: orders = [] } = useQuery({
-    queryKey: ["admin-orders"],
-    queryFn: async () => (await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false })).data ?? [],
-  });*/
   const [q, setQ] = useState("");
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-orders"] });
 
   const visible = orders.filter((o) =>
     matches(q, [
-      o.id, o.customer_name, o.phone, o.address, o.city, o.notes, o.status,
+      o.id,
+      o.customer_name,
+      o.phone,
+      o.address,
+      o.city,
+      o.notes,
+      o.status,
       o.order_items.map((i) => `${i.product_name} ${i.size ?? ""}`).join(" "),
     ]),
   );
-
 
   const setStatus = async (id: string, status: string) => {
     const o = orders.find((x) => x.id === id);
@@ -526,29 +827,40 @@ function Orders() {
       if (!o?.confirmed_at) patch.confirmed_at = now;
     }
     const { error } = await supabase.from("orders").update(patch).eq("id", id);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Status updated"); refresh();
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Status updated");
+    refresh();
   };
+
   const del = async (id: string) => {
     if (!confirm("Delete this order?")) return;
     const { error } = await supabase.from("orders").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     refresh();
   };
 
   return (
     <div className="mt-4 space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder="Search orders by name, phone, city, item, status…" /></div>
+        <div className="flex-1">
+          <SearchBar value={q} onChange={setQ} placeholder="Search orders by name, phone, city, item, status…" />
+        </div>
         <p className="text-sm text-muted-foreground">{visible.length} of {orders.length}</p>
       </div>
       {orders.length === 0 ? (
         <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">No orders yet.</p>
       ) : visible.length === 0 ? (
-        <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">No orders match “{q}”.</p>
+        <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">
+          No orders match “{q}”.
+        </p>
       ) : null}
       {visible.map((o) => (
-
         <div key={o.id} className={cn("rounded-2xl border p-5", ORDER_TINT[o.status] ?? "bg-card border-border")}>
           <div className="flex items-start justify-between gap-4">
             <p className="min-w-0 flex-1 font-semibold">#{o.id.slice(0, 8)}</p>
@@ -577,13 +889,18 @@ function Orders() {
               value={o.status}
               onChange={(e) => setStatus(o.id, e.target.value)}
             >
-              {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
             </select>
           </div>
           <ul className="mt-3 space-y-1 border-t border-border pt-3 text-sm">
             {o.order_items.map((i) => (
               <li key={i.id} className="flex justify-between">
-                <span>{i.quantity} × {i.product_name}{i.size ? ` (${i.size})` : ""}</span>
+                <span>
+                  {i.quantity} × {i.product_name}
+                  {i.size ? ` (${i.size})` : ""}
+                </span>
                 <span>{money(Number(i.price) * i.quantity)}</span>
               </li>
             ))}
@@ -601,21 +918,33 @@ function Delivery() {
   const { data: fee } = useDeliveryFee();
   const [val, setVal] = useState<string | null>(null);
   const shown = val ?? (fee == null ? "" : String(fee));
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const n = Number(shown);
-    if (!Number.isFinite(n) || n < 0) { toast.error("Enter a valid amount"); return; }
-    const { error } = await supabase.from("store_settings").upsert({ id: 1, delivery_fee: n, updated_at: new Date().toISOString() });
-    if (error) { toast.error(error.message); return; }
+    if (!Number.isFinite(n) || n < 0) {
+      toast.error("Enter a valid amount");
+      return;
+    }
+    const { error } = await supabase
+      .from("store_settings")
+      .upsert({ id: 1, delivery_fee: n, updated_at: new Date().toISOString() });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Delivery fee saved");
     setVal(null);
     qc.invalidateQueries({ queryKey: ["delivery-fee"] });
   };
+
   return (
     <form onSubmit={save} className="mt-4 max-w-md space-y-3 rounded-2xl border border-border bg-card p-5">
       <Label htmlFor="fee">Delivery fee ($)</Label>
       <Input id="fee" type="number" step="0.01" min="0" value={shown} onChange={(e) => setVal(e.target.value)} />
-      <p className="text-xs text-muted-foreground">Added to the customer's total at checkout. Order totals here stay without it.</p>
+      <p className="text-xs text-muted-foreground">
+        Added to the customer's total at checkout. Order totals here stay without it.
+      </p>
       <Button type="submit" className="rounded-full">Save</Button>
     </form>
   );
