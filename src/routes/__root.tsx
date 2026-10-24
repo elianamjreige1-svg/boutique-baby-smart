@@ -134,9 +134,11 @@ function RootComponent() {
         <main className="min-h-[calc(100vh-4rem)]">
           <Outlet />
         </main>
-        <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-         © 2026 CUDDLEKIDS.LB | Developed by K. Ishak
-        </footer>
+       <footer className="border-t border-border px-3 py-8 text-center text-muted-foreground">
+  <p className="whitespace-nowrap text-[clamp(0.65rem,3.2vw,0.875rem)] leading-tight">
+    © 2026 CUDDLEKIDS.LB | Developed by K. Ishak
+  </p>
+</footer>
         <Toaster />
       </CartProvider>
     </QueryClientProvider>
