@@ -6,8 +6,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { money } from "@/lib/cart";
 
 import { matchesAge } from "@/lib/age-filter";
+type ShopSearchParams = {
+  cat?: string;
+  gender?: string;
+  age?: string;
+};
 
 export const Route = createFileRoute("/")({
+  validateSearch: (search: Record<string, unknown>): ShopSearchParams => {
+    return {
+      cat: typeof search.cat === "string" ? search.cat : undefined,
+      gender: typeof search.gender === "string" ? search.gender : undefined,
+      age: typeof search.age === "string" ? search.age : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "cuddlekids.lb — Soft Baby Clothes, Cash on Delivery" },
@@ -19,6 +31,19 @@ export const Route = createFileRoute("/")({
   component: Shop,
 });
 
+/*
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "cuddlekids.lb — Soft Baby Clothes, Cash on Delivery" },
+      { name: "description", content: "Shop organic bodysuits, pajamas and knits for babies. Pay cash when it arrives." },
+      { property: "og:title", content: "cuddlekids.lb — Soft Baby Clothes" },
+      { property: "og:description", content: "Organic baby clothes delivered to your door. Cash on delivery." },
+    ],
+  }),
+  component: Shop,
+});
+*/
 const GENDERS = [
   { value: null, label: "Everyone" },
   { value: "boy", label: "Boy" },
@@ -27,9 +52,39 @@ const GENDERS = [
 const AGE_GROUPS = ["6-9M", "9-12M", "12-18M", "18-24M", "2-4Y", "4-6Y", "6-8Y", "8-10Y"];
 
 function Shop() {
+  const search = Route.useSearch();
+const navigate = Route.useNavigate();
+
+const cat = search.cat ?? null;
+const gender = search.gender ?? null;
+const age = search.age ?? null;
+
+const setCat = (newCat: string | null) => {
+  navigate({
+    search: (prev) => ({ ...prev, cat: newCat || undefined }),
+    replace: true,
+  });
+};
+
+const setGender = (newGender: string | null) => {
+  navigate({
+    search: (prev) => ({ ...prev, gender: newGender || undefined }),
+    replace: true,
+  });
+};
+
+const setAge = (newAge: string | null) => {
+  navigate({
+    search: (prev) => ({ ...prev, age: newAge || undefined }),
+    replace: true,
+  });
+};
+
+  /*
   const [cat, setCat] = useState<string | null>(null);
   const [gender, setGender] = useState<string | null>(null);
   const [age, setAge] = useState<string | null>(null);
+  */
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
