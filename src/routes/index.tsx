@@ -53,8 +53,9 @@ const AGE_GROUPS = ["6-9M", "9-12M", "12-18M", "18-24M", "2-4Y", "4-6Y", "6-8Y",
 
 function Shop() {
   const search = Route.useSearch();
-const navigate = Route.useNavigate();
-
+//const navigate = Route.useNavigate();
+const navigate = Route.useSearch();
+  
 const cat = search.cat ?? null;
 const gender = search.gender ?? null;
 const age = search.age ?? null;
