@@ -650,7 +650,7 @@ function Products() {
                 <div className="flex-1 space-y-1">
                   <span className="text-xs text-muted-foreground">Age range</span>
                   <Input
-                    placeholder="e.g. 0-3M, 3-6M, 1-2Y"
+                    placeholder=""
                     value={newAge}
                     onChange={(e) => setNewAge(e.target.value)}
                     onKeyDown={(e) => {
