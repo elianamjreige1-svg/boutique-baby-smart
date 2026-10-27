@@ -930,31 +930,34 @@ function Orders() {
   <p className="font-semibold truncate">#{o.id.slice(0, 8)}</p>
 
   {/* Center: Cancel Button (X symbol) */}
-  <div className="flex justify-center">
-    <Button
-      variant="ghost"
-      size="icon"
-      className="shrink-0 text-muted-foreground hover:text-destructive"
-      aria-label="Cancel order"
-      disabled={o.status === "shipped"}
-      onClick={() => cancelOrder(o)}
-    >Cancel
-      <X className="h-4 w-4" />
-    </Button>
+  <div className="flex justify-end -mr-2">
+    {o.status !== "shipped" && (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="shrink-0 text-muted-foreground hover:text-destructive"
+        aria-label="Cancel order"
+        onClick={() => cancelOrder(o)}
+      >
+        Cancel
+        <X className="h-4 w-4" />
+      </Button>
+    )}
   </div>
 
   {/* Right: Delete Button */}
-  <div className="flex justify-end -mr-2">
-    <Button
-      variant="ghost"
-      size="icon"
-      className="shrink-0 text-muted-foreground hover:text-destructive"
-      aria-label="Delete order"
-      disabled={o.status === "pending" || o.status === "confirmed"}
-      onClick={() => del(o.id)}
-    >
-      <Trash2 className="h-4 w-4" />
-    </Button>
+ <div className="flex justify-end -mr-2">
+    {o.status === "shipped" && (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="shrink-0 text-muted-foreground hover:text-destructive"
+        aria-label="Delete order"
+        onClick={() => del(o.id)}
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    )}
   </div>
 </div>
 
