@@ -930,7 +930,7 @@ function Orders() {
   <p className="font-semibold truncate">#{o.id.slice(0, 8)}</p>
 
   {/* Center: Cancel Button (X symbol) */}
-  <div className="flex justify-end -mr-2">
+  <div className="flex justify-end">
     {o.status !== "shipped" && (
       <Button
         variant="ghost"
