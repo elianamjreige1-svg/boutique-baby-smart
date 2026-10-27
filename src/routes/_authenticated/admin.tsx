@@ -845,6 +845,68 @@ function Orders() {
     refresh();
   };
 
+//cancel orders
+    const cancelOrder = async (o: (typeof orders)[number]) => {
+    // 1. Guard against shipped orders
+    if (o.status === "shipped") {
+      toast.error("Shipped orders cannot be cancelled.");
+      return;
+    }
+
+    // 2. Confirmation prompt
+    if (!confirm("Are you sure you want to cancel this order? This will restore product stock and delete the order.")) {
+      return;
+    }
+
+    try {
+      // 3. Fetch products to restore stock
+      const productIds = [...new Set(o.order_items.map((i) => i.product_id))];
+      if (productIds.length > 0) {
+        const { data: products, error: pErr } = await supabase
+          .from("products")
+          .select("id, stock, size_stock")
+          .in("id", productIds);
+
+        if (pErr) throw new Error("Failed to load products for stock restoration");
+
+        // 4. Restore base stock and size_stock
+        for (const item of o.order_items) {
+          const product = products?.find((p) => p.id === item.product_id);
+          if (!product) continue;
+
+          const updatedStock = product.stock + item.quantity;
+          const ss = { ...((product.size_stock ?? {}) as Record<string, number>) };
+
+          if (item.size && item.size in ss) {
+            ss[item.size] = (Number(ss[item.size]) || 0) + item.quantity;
+          }
+
+          product.stock = updatedStock;
+          product.size_stock = ss;
+
+          const { error: upErr } = await supabase
+            .from("products")
+            .update({ stock: updatedStock, size_stock: ss })
+            .eq("id", product.id);
+
+          if (upErr) throw new Error("Failed to restore stock");
+        }
+      }
+
+      // 5. Delete order (order_items delete automatically via cascade)
+      const { error: dErr } = await supabase.from("orders").delete().eq("id", o.id);
+      if (dErr) throw dErr;
+
+      toast.success("Order cancelled and stock restored");
+      refresh();
+      qc.invalidateQueries({ queryKey: ["admin-products"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to cancel order");
+    }
+  };
+
+  
   return (
     <div className="mt-4 space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -862,18 +924,34 @@ function Orders() {
       ) : null}
       {visible.map((o) => (
         <div key={o.id} className={cn("rounded-2xl border p-5", ORDER_TINT[o.status] ?? "bg-card border-border")}>
-          <div className="flex items-start justify-between gap-4">
-            <p className="min-w-0 flex-1 font-semibold">#{o.id.slice(0, 8)}</p>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="-mr-2 -mt-2 shrink-0"
-              aria-label="Delete order"
-              onClick={() => del(o.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          
+<div className="flex items-start justify-between gap-4">
+  <p className="min-w-0 flex-1 font-semibold">#{o.id.slice(0, 8)}</p>
+  <div className="flex items-center gap-1 -mr-2 -mt-2">
+    <Button
+      variant="ghost"
+      size="icon"
+      className="shrink-0 text-muted-foreground hover:text-destructive"
+      aria-label="Cancel order"
+      disabled={o.status === "shipped"}
+      onClick={() => cancelOrder(o)}
+    >
+      <X className="h-4 w-4" />
+    </Button>
+    <Button
+      variant="ghost"
+      size="icon"
+      className="shrink-0"
+      aria-label="Delete order"
+      onClick={() => del(o.id)}
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  </div>
+</div>
+
+
+          
           <p className="mt-2 font-semibold break-words">{o.customer_name}</p>
           <p className="text-sm text-muted-foreground break-words">{o.phone} · {o.address}, {o.city}</p>
           <p className="text-xs text-muted-foreground">Cash on delivery</p>
