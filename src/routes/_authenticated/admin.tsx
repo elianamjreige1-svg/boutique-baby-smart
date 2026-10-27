@@ -935,8 +935,8 @@ function Orders() {
       aria-label="Cancel order"
       disabled={o.status === "shipped"}
       onClick={() => cancelOrder(o)}
-    >
-      <X className="h-4 w-4" >Cancel</X>
+    >Cancel
+      <X className="h-4 w-4" />
     </Button>
     <Button
       variant="ghost"
