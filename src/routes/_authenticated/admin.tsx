@@ -936,7 +936,7 @@ function Orders() {
       disabled={o.status === "shipped"}
       onClick={() => cancelOrder(o)}
     >
-      <X className="h-4 w-4" />
+      <X className="h-4 w-4" />Cancel Order
     </Button>
     <Button
       variant="ghost"
