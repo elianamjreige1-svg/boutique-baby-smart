@@ -940,7 +940,7 @@ function Orders() {
         onClick={() => cancelOrder(o)}
       >
         Cancel
-        <X className="h-4 w-4" />
+        <X className="flex justify-end" />
       </Button>
     )}
   </div>
