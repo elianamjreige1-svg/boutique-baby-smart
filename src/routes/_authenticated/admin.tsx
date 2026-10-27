@@ -953,8 +953,8 @@ function Orders() {
       className="text-muted-foreground hover:text-destructive"
       aria-label="Delete order"
       onClick={() => del(o.id)}
-    >Delete
-      <Trash2 className="h-4 w-4 ml-1" />
+    >
+      <Trash2 className="h-4 w-4" />
     </Button>
   )}
 
