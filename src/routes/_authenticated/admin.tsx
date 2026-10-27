@@ -925,40 +925,39 @@ function Orders() {
       {visible.map((o) => (
         <div key={o.id} className={cn("rounded-2xl border p-5", ORDER_TINT[o.status] ?? "bg-card border-border")}>
           
-<div className="grid grid-cols-3 items-center -mt-2">
+<div className="flex items-center justify-between -mt-2">
+
   {/* Left: Order ID */}
-  <p className="font-semibold truncate">#{o.id.slice(0, 8)}</p>
+  <p className="font-semibold truncate">
+    #{o.id.slice(0, 8)}
+  </p>
 
-  {/* Center: Cancel Button (X symbol) */}
-  <div className="flex justify-end">
-    {o.status !== "shipped" && (
-      <Button
-        variant="ghost"
-        size="icon"
-        className="shrink-0 text-muted-foreground hover:text-destructive"
-        aria-label="Cancel order"
-        onClick={() => cancelOrder(o)}
-      >
-        Cancel
-        <X className="flex justify-end" />
-      </Button>
-    )}
-  </div>
+  {/* Right: Cancel Button */}
+  {o.status !== "shipped" && (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="text-muted-foreground hover:text-destructive"
+      onClick={() => cancelOrder(o)}
+    >
+      Cancel
+      <X className="h-4 w-4 ml-1" />
+    </Button>
+  )}
 
-  {/* Right: Delete Button */}
- <div className="flex justify-end -mr-2">
-    {o.status === "shipped" && (
-      <Button
-        variant="ghost"
-        size="icon"
-        className="shrink-0 text-muted-foreground hover:text-destructive"
-        aria-label="Delete order"
-        onClick={() => del(o.id)}
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
-    )}
-  </div>
+  {/* Right: Delete Button (shipped orders only) */}
+  {o.status === "shipped" && (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="text-muted-foreground hover:text-destructive"
+      aria-label="Delete order"
+      onClick={() => del(o.id)}
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  )}
+
 </div>
 
 
