@@ -644,6 +644,7 @@ function Products() {
                   </div>
                 )}
               </div>
+const isAllAges = f.ages.includes("All ages");
 
               {/* Add custom age range and quantity */}
               <div className="flex items-end gap-2 pt-1">
@@ -652,6 +653,7 @@ function Products() {
                   <Input
                     placeholder=""
                     value={newAge}
+                    disabled={isAllAges}
                     onChange={(e) => setNewAge(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleAddAge(e);
@@ -664,10 +666,11 @@ function Products() {
                     type="number"
                     min="0"
                     value={newQty}
+                    disabled={isAllAges}
                     onChange={(e) => setNewQty(e.target.value)}
                   />
                 </div>
-                <Button type="button" variant="secondary" onClick={handleAddAge}>
+                <Button type="button" variant="secondary" disabled={isAllAges} onClick={handleAddAge}>
                   <Plus className="h-4 w-4 mr-1" /> Add
                 </Button>
               </div>
