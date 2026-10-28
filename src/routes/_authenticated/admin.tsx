@@ -648,7 +648,7 @@ function Products() {
               {/* Add custom age range and quantity */}
               <div className="flex items-end gap-2 pt-1">
                 <div className="flex-1 space-y-1">
-                  <span className="text-xs text-muted-foreground">Age range</span>
+                  <span className="text-xs text-muted-foreground">Age range (e.g. 0-3M)</span>
                   <Input
                     placeholder=""
                     value={newAge}
