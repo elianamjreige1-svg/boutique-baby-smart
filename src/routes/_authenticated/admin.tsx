@@ -449,7 +449,7 @@ function Products() {
     toast.success("Deleted");
     refresh();
   };
-
+const isAllAges = f.ages.includes("All ages");
   return (
     <div className="mt-4">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -644,7 +644,7 @@ function Products() {
                   </div>
                 )}
               </div>
-const isAllAges = f.ages.includes("All ages");
+
 
               {/* Add custom age range and quantity */}
               <div className="flex items-end gap-2 pt-1">
