@@ -863,7 +863,7 @@ function Orders() {
 
     try {
       // 3. Fetch products to restore stock
-      const productIds = [...new Set(o.order_items.map((i) => i.product_id))];
+      const productIds = [...new Set(o.order_items.map((i) => i.product_id).filter((x): x is string => !!x))];
       if (productIds.length > 0) {
         const { data: products, error: pErr } = await supabase
           .from("products")
