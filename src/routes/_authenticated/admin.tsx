@@ -289,9 +289,12 @@ function Products() {
   const [newQty, setNewQty] = useState("1");
 
   const catName = (id: string | null) => cats.find((c) => c.id === id)?.name ?? "";
-  const visible = products.filter((p) =>
-    matches(q, [p.name, p.description, p.gender, p.age_group, p.sizes.join(" "), catName(p.category_id)]),
-  );
+  const isAccessory = (id: string | null) => catName(id).toLowerCase().startsWith("accessor");
+  const visible = products
+    .filter((p) =>
+      matches(q, [p.name, p.description, p.gender, p.age_group, p.sizes.join(" "), catName(p.category_id)]),
+    )
+    .sort((a, b) => Number(isAccessory(a.category_id)) - Number(isAccessory(b.category_id)));
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["admin-products"] });
