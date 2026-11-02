@@ -27,9 +27,9 @@ function SortableItem({ id, enabled, children }: { id: string; enabled: boolean;
   );
 }
 type ShopSearchParams = {
-  cat?: string;
-  gender?: string;
-  age?: string;
+  cat?: string | undefined;
+  gender?: string | undefined;
+  age?: string | undefined;
 };
 
 export const Route = createFileRoute("/")({

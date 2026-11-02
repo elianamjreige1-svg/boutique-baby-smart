@@ -10,9 +10,9 @@ export function parseAgeRange(raw: string | null | undefined): [number, number] 
   // Range match e.g. "12-18m", "1-2y", "6-9m"
   const rangeMatch = s.match(/^(\d+)\s*([a-z]+)?-(\d+)\s*([a-z]+)?$/);
   if (rangeMatch) {
-    const v1 = parseInt(rangeMatch[1], 10);
+    const v1 = parseInt(rangeMatch[1] ?? "0", 10);
     const u1 = rangeMatch[2] || "";
-    const v2 = parseInt(rangeMatch[3], 10);
+    const v2 = parseInt(rangeMatch[3] ?? "0", 10);
     const u2 = rangeMatch[4] || "";
 
     const isY2 = u2.includes("y") || u2.includes("yr");
@@ -28,7 +28,7 @@ export function parseAgeRange(raw: string | null | undefined): [number, number] 
   // Single value match e.g. "1y", "12m", "2y"
   const singleMatch = s.match(/^(\d+)\s*([a-z]+)?$/);
   if (singleMatch) {
-    const v = parseInt(singleMatch[1], 10);
+    const v = parseInt(singleMatch[1] ?? "0", 10);
     const u = singleMatch[2] || "";
     const isYear = u.includes("y") || u.includes("yr") || (!u.includes("m") && v <= 10);
     if (isYear) {
