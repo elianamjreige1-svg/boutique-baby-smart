@@ -35,9 +35,9 @@ type ShopSearchParams = {
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): ShopSearchParams => {
     return {
-      cat: typeof search.cat === "string" ? search.cat : undefined,
-      gender: typeof search.gender === "string" ? search.gender : undefined,
-      age: typeof search.age === "string" ? search.age : undefined,
+      cat: typeof search["cat"] === "string" ? search["cat"] : undefined,
+      gender: typeof search["gender"] === "string" ? search["gender"] : undefined,
+      age: typeof search["age"] === "string" ? search["age"] : undefined,
     };
   },
   head: () => ({
