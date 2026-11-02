@@ -270,17 +270,22 @@ const setAge = (newAge: string | null) => {
       ) : shown.length === 0 ? (
         <p className="text-muted-foreground">No products yet.</p>
       ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={shown.map((p) => p.id)} strategy={rectSortingStrategy}>
+        {isAdmin && <p className="mb-3 text-xs text-muted-foreground">Admin: drag products to change their order.</p>}
                <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
           {shown.map((p) => {
             const isSoldOut = p.stock < 1;
             return (
-              <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="group text-center">
+              <SortableItem key={p.id} id={p.id} enabled={isAdmin}>
+              <Link to="/product/$id" params={{ id: p.id }} className="group block text-center" draggable={false}>
                 <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
                   {p.image_url && (
                     <img
                       src={p.image_url}
                       alt={p.name}
                       loading="lazy"
+                      draggable={false}
                       className={`h-full w-full object-cover transition duration-500 ${isSoldOut ? "opacity-60" : "group-hover:scale-105"}`}
                     />
                   )}
@@ -296,9 +301,12 @@ const setAge = (newAge: string | null) => {
                 </p>
                 <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
               </Link>
+              </SortableItem>
             );
           })}
         </div>
+        </SortableContext>
+        </DndContext>
 
       )}
     </div>
