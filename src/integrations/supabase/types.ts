@@ -134,6 +134,7 @@ export type Database = {
           image_url: string | null
           images: string[]
           name: string
+          position: number
           price: number
           size_stock: Json
           sizes: string[]
@@ -150,6 +151,7 @@ export type Database = {
           image_url?: string | null
           images?: string[]
           name: string
+          position?: number
           price?: number
           size_stock?: Json
           sizes?: string[]
@@ -166,6 +168,7 @@ export type Database = {
           image_url?: string | null
           images?: string[]
           name?: string
+          position?: number
           price?: number
           size_stock?: Json
           sizes?: string[]
