@@ -136,7 +136,7 @@ const setAge = (newAge: string | null) => {
     // put the reordered visible products back into the same slots of the full list
     const slots = new Set(ids);
     let k = 0;
-    const full = products.map((p) => (slots.has(p.id) ? moved[k++] : p.id));
+    const full = products.map((p) => (slots.has(p.id) ? (moved[k++] ?? p.id) : p.id));
     const byId = new Map(products.map((p) => [p.id, p]));
     qc.setQueryData(["products"], full.map((id) => byId.get(id)!));
     const changes = full
