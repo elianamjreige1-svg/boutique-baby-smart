@@ -1,11 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import { MessageCircle } from "lucide-react";
+import { toast } from "sonner";
+import { DndContext, closestCenter, MouseSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, rectSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { supabase } from "@/integrations/supabase/client";
 import { money } from "@/lib/cart";
+import { useSession } from "@/lib/use-session";
 
 import { matchesAge } from "@/lib/age-filter";
+
+function SortableItem({ id, enabled, children }: { id: string; enabled: boolean; children: ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled: !enabled });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : undefined, opacity: isDragging ? 0.8 : 1 }}
+      className={enabled ? "cursor-grab touch-manipulation" : undefined}
+      {...(enabled ? attributes : {})}
+      {...(enabled ? listeners : {})}
+    >
+      {children}
+    </div>
+  );
+}
 type ShopSearchParams = {
   cat?: string;
   gender?: string;
@@ -101,8 +121,34 @@ const setAge = (newAge: string | null) => {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: async () =>
-      (await supabase.from("products").select("*").eq("active", true).order("created_at", { ascending: false })).data ?? [],
+      (await supabase.from("products").select("*").eq("active", true).order("position").order("created_at", { ascending: false })).data ?? [],
   });
+  const { isAdmin } = useSession();
+  const qc = useQueryClient();
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+  );
+  const onDragEnd = async (e: DragEndEvent) => {
+    if (!e.over || e.active.id === e.over.id) return;
+    const ids = shown.map((p) => p.id);
+    const moved = arrayMove(ids, ids.indexOf(String(e.active.id)), ids.indexOf(String(e.over.id)));
+    // put the reordered visible products back into the same slots of the full list
+    const slots = new Set(ids);
+    let k = 0;
+    const full = products.map((p) => (slots.has(p.id) ? moved[k++] : p.id));
+    const byId = new Map(products.map((p) => [p.id, p]));
+    qc.setQueryData(["products"], full.map((id) => byId.get(id)!));
+    const changes = full
+      .map((id, i) => ({ id, position: i + 1 }))
+      .filter((c) => byId.get(c.id)!.position !== c.position);
+    const results = await Promise.all(
+      changes.map((c) => supabase.from("products").update({ position: c.position }).eq("id", c.id)),
+    );
+    if (results.some((r) => r.error)) toast.error("Couldn't save the new order");
+    else toast.success("Order saved");
+    qc.invalidateQueries({ queryKey: ["products"] });
+  };
 
   const accessoryCategoryIds = new Set(
   categories
