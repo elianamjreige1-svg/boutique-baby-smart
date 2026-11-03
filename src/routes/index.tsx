@@ -151,17 +151,24 @@ const setAge = (newAge: string | null) => {
   };
 
   const accessoryCategoryIds = new Set(
-  categories
-    .filter((c) => c.name.toLowerCase().startsWith("accessor"))
-    .map((c) => c.id)
-);
+    categories
+      .filter((c) => c.name.toLowerCase().startsWith("accessor"))
+      .map((c) => c.id),
+  );
+  const isAccessory = (categoryId: string | null) => accessoryCategoryIds.has(categoryId ?? "");
 
-  const shown = products.filter(
-  (p) =>
-    (cat ? p.category_id === cat : !accessoryCategoryIds.has(p.category_id ?? "")) &&
-    (!gender || p.gender === gender || p.gender === "unisex") &&
-    matchesAge(age, p.sizes, p.age_group),
-);
+  // "All" shows everything: clothes first, accessories always at the end.
+  // Within each group the saved order (drag position, newest first) is kept,
+  // so a freshly added accessory lands at the top of the accessories block.
+  const shown = products
+    .filter(
+      (p) =>
+        (!cat || p.category_id === cat) &&
+        (!gender || p.gender === gender || p.gender === "unisex") &&
+        matchesAge(age, p.sizes, p.age_group),
+    )
+    .sort((a, b) => Number(isAccessory(a.category_id)) - Number(isAccessory(b.category_id)));
+
   
  /* 
   const shown = products.filter(
