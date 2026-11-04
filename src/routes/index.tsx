@@ -229,7 +229,7 @@ const setAge = (newAge: string | null) => {
             </button>
           ))}
           </div>
-        </div>
+        </div><br>
         <div className="flex flex-wrap items-center gap-2">
           <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">For</span>
           <div className="contents">
@@ -245,7 +245,7 @@ const setAge = (newAge: string | null) => {
             </button>
           ))}
           </div>
-        </div>
+        </div><br>
         <div className="flex flex-wrap items-center gap-2">
           <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Age</span>
           <div className="contents">
