@@ -213,7 +213,7 @@ const setAge = (newAge: string | null) => {
         </div>
       </section>
 
-      <div className="mb-8 space-y-3">
+      <div className="mb-8 space-y-6">
         <div className="flex flex-wrap items-center gap-2">
           <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</span>
           <div className="contents">
