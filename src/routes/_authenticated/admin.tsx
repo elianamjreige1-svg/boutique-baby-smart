@@ -3,7 +3,7 @@ import { PHOTO_URL_PREFIX, photoPath } from "@/lib/product-photo";
 import { deleteProductPhotos } from "@/lib/product-photo.functions";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { optimizeImage, formatBytes, blobToDataUrl, type Optimized } from "@/lib/image-optimize";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, Search, X } from "lucide-react";
@@ -123,6 +123,41 @@ const allPhotos = (p: { image_url: string | null; images?: string[] | null }) =>
   p.images?.length ? p.images : p.image_url ? [p.image_url] : [];
 
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
+
+/** Editable age-range name: keeps its own draft and commits on blur / Enter. */
+function AgeNameInput({
+  value,
+  disabled,
+  onCommit,
+}: {
+  value: string;
+  disabled?: boolean;
+  onCommit: (next: string) => boolean;
+}) {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
+  const commit = () => {
+    const next = draft.trim();
+    if (!onCommit(next)) setDraft(value);
+    else setDraft(next);
+  };
+  return (
+    <Input
+      aria-label="Age range"
+      value={draft}
+      disabled={disabled}
+      className="h-8 w-28 font-medium"
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commit();
+        }
+      }}
+    />
+  );
+}
 
 type Pending = { opt: Optimized; preview: string; name: string };
 
@@ -363,6 +398,32 @@ function Products() {
         qty: nextQty,
       };
     });
+  };
+
+  /** Renames an age range in place, carrying its quantity over. Returns false if rejected. */
+  const renameAge = (oldAge: string, raw: string) => {
+    const next = raw.trim();
+    if (!next) {
+      toast.error("Age range can't be empty");
+      return false;
+    }
+    if (next === oldAge) return true;
+    if (next.toLowerCase() === "all ages") {
+      toast.error("Use the 'All ages' checkbox above");
+      return false;
+    }
+    if (f.ages.some((a) => a !== oldAge && a.toLowerCase() === next.toLowerCase())) {
+      toast.error("This age range is already added");
+      return false;
+    }
+    setF((cur) => {
+      const qty = { ...cur.qty };
+      const q = qty[oldAge];
+      delete qty[oldAge];
+      if (q !== undefined) qty[next] = q;
+      return { ...cur, ages: cur.ages.map((a) => (a === oldAge ? next : a)), qty };
+    });
+    return true;
   };
 
   const toggleAllAges = (checked: boolean) => {
@@ -685,7 +746,7 @@ const isAllAges = f.ages.includes("All ages");
                     .filter((a) => a !== "All ages")
                     .map((a) => (
                       <div key={a} className="flex items-center justify-between gap-3 text-sm">
-                        <span className="font-medium">{a}</span>
+                        <AgeNameInput value={a} disabled={isAllAges} onCommit={(next) => renameAge(a, next)} />
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-muted-foreground">Qty:</span>
                           <Input
