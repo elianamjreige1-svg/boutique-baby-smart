@@ -258,7 +258,7 @@ export type Database = {
         Returns: boolean
       }
       save_admin_product: {
-        Args: { _original_price: number; _product: Json; _product_id?: string }
+        Args: { _original_price?: number; _product: Json; _product_id?: string }
         Returns: string
       }
     }

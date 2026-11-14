@@ -57,6 +57,13 @@
       "when": 1794684772162,
       "tag": "0007_admin_product_original_prices",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794684832390,
+      "tag": "0008_optional_existing_original_price",
+      "breakpoints": true
     }
   ]
 }
