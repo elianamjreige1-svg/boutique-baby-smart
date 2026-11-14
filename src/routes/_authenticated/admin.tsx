@@ -501,8 +501,8 @@ function Products() {
 
     const { error } = await supabase.rpc("save_admin_product", {
       _product: row,
-      _original_price: f.original_price.trim() ? Number(f.original_price) : null,
-      _product_id: editing?.id ?? null,
+      ...(f.original_price.trim() ? { _original_price: Number(f.original_price) } : {}),
+      ...(editing ? { _product_id: editing.id } : {}),
     });
 
     if (error) {
