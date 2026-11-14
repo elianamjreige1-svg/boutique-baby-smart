@@ -567,12 +567,15 @@ const isAllAges = f.ages.includes("All ages");
             <tbody>
               {visible.map((p) => (
                 <tr key={p.id} className="border-t border-border">
-                  <td className="flex items-center gap-3 p-3">
-                    <div className="h-12 w-10 overflow-hidden rounded bg-muted">
-                      {p.image_url && <img src={p.image_url} alt="" className="h-full w-full object-cover" />}
-                    </div>
-                    {p.name}
-                  </td>
+               <td className="p-3 align-middle">
+  <div className="flex items-center gap-3">
+    <div className="h-12 w-10 overflow-hidden rounded bg-muted">
+      {p.image_url && <img src={p.image_url} alt="" className="h-full w-full object-cover" />}
+    </div>
+    {p.name}
+  </div>
+</td>
+
                   <td className="p-3 pr-6">{money(Number(p.price))}</td>
                   <td className="min-w-[140px] p-3 pl-6 align-top">
                     <div className="font-semibold whitespace-nowrap">Total: {p.stock}</div>
