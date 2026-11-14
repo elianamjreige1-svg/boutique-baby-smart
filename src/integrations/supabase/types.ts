@@ -122,6 +122,29 @@ export type Database = {
         }
         Relationships: []
       }
+      product_original_prices: {
+        Row: {
+          original_price: number
+          product_id: string
+        }
+        Insert: {
+          original_price: number
+          product_id: string
+        }
+        Update: {
+          original_price?: number
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_original_prices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           active: boolean
@@ -233,6 +256,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      save_admin_product: {
+        Args: { _original_price: number; _product: Json; _product_id?: string }
+        Returns: string
       }
     }
     Enums: {
