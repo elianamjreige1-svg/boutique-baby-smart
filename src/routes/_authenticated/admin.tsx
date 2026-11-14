@@ -560,7 +560,7 @@ const isAllAges = f.ages.includes("All ages");
                 <th className="p-3">Product</th>
                 <th className="p-3 pr-6">Price</th>
                 <th className="p-3 pl-6">Stock</th>
-                <th className="p-3 text-right whitespace-nowrap">Original price ($)</th>
+                <th className="p-3 text-right whitespace-nowrap">Original price</th>
                 <th className="p-3" />
               </tr>
             </thead>
@@ -589,7 +589,7 @@ const isAllAges = f.ages.includes("All ages");
                       </ul>
                     )}
                   </td>
-                  <td className="p-3 text-right whitespace-nowrap">
+                  <td className="p-3 text-center whitespace-nowrap">
                     {pricesPending ? "…" : pricesFailed ? "Unavailable" : originalPriceFor(p.id) === undefined ? "—" : money(Number(originalPriceFor(p.id)))}
                   </td>
                   <td className="p-3 text-right whitespace-nowrap">
