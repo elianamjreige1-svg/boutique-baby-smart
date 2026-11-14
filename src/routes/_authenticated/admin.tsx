@@ -19,10 +19,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { originalPriceError } from "@/lib/original-price";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Admin — cuddlekidslb" },
       { name: "description", content: "Manage products, categories and orders." },
       { property: "og:title", content: "Admin — cuddlekidslb" },
@@ -110,6 +113,7 @@ const emptyProduct = {
   name: "",
   description: "",
   price: "",
+  original_price: "",
   image_url: "",
   images: [] as string[],
   category_id: "",
@@ -313,6 +317,15 @@ function Products() {
     queryKey: ["admin-products"],
     queryFn: async () => (await supabase.from("products").select("*").order("created_at", { ascending: false })).data ?? [],
   });
+  const { data: originalPrices = [], isPending: pricesPending, isError: pricesFailed } = useQuery({
+    queryKey: ["admin-original-prices"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_original_prices").select("product_id, original_price");
+      if (error) throw error;
+      return data;
+    },
+  });
+  const originalPriceFor = (id: string) => originalPrices.find((p) => p.product_id === id)?.original_price;
   const [editing, setEditing] = useState<Product | null>(null);
   const [open, setOpen] = useState(false);
   const [f, setF] = useState(emptyProduct);
@@ -333,6 +346,7 @@ function Products() {
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["admin-products"] });
+    qc.invalidateQueries({ queryKey: ["admin-original-prices"] });
     qc.invalidateQueries({ queryKey: ["products"] });
   };
 
@@ -354,6 +368,7 @@ function Products() {
       name: p.name,
       description: p.description,
       price: String(p.price),
+      original_price: originalPriceFor(p.id) === undefined ? "" : String(originalPriceFor(p.id)),
       image_url: p.image_url ?? "",
       images: allPhotos(p),
       category_id: p.category_id ?? "",
@@ -448,6 +463,11 @@ function Products() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
+    const priceError = originalPriceError(f.original_price, !editing);
+    if (priceError) {
+      toast.error(priceError);
+      return;
+    }
     if (!f.category_id) {
       toast.error("Please select a category");
       return;
@@ -481,9 +501,11 @@ function Products() {
       age_group: ages[0] ?? "All ages",
     };
 
-    const { error } = editing
-      ? await supabase.from("products").update(row).eq("id", editing.id)
-      : await supabase.from("products").insert(row);
+    const { error } = await supabase.rpc("save_admin_product", {
+      _product: row,
+      ...(f.original_price.trim() ? { _original_price: Number(f.original_price) } : {}),
+      ...(editing ? { _product_id: editing.id } : {}),
+    });
 
     if (error) {
       toast.error(error.message);
@@ -538,6 +560,7 @@ const isAllAges = f.ages.includes("All ages");
                 <th className="p-3">Product</th>
                 <th className="p-3 pr-6">Price</th>
                 <th className="p-3 pl-6">Stock</th>
+                <th className="p-3 text-right whitespace-nowrap">Original price ($)</th>
                 <th className="p-3" />
               </tr>
             </thead>
@@ -566,11 +589,14 @@ const isAllAges = f.ages.includes("All ages");
                       </ul>
                     )}
                   </td>
-                  <td className="p-3 text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
+                  <td className="p-3 text-right whitespace-nowrap">
+                    {pricesPending ? "…" : pricesFailed ? "Unavailable" : originalPriceFor(p.id) === undefined ? "—" : money(Number(originalPriceFor(p.id)))}
+                  </td>
+                  <td className="p-3 text-right whitespace-nowrap">
+                    <Button variant="ghost" size="icon" aria-label={`Edit ${p.name}`} disabled={pricesPending || pricesFailed} onClick={() => openEdit(p)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => del(p)}>
+                    <Button variant="ghost" size="icon" aria-label={`Delete ${p.name}`} onClick={() => del(p)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </td>
@@ -603,6 +629,18 @@ const isAllAges = f.ages.includes("All ages");
                 min="0"
                 value={f.price}
                 onChange={(e) => setF({ ...f, price: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="original-price">Original price ($)</Label>
+              <Input
+                id="original-price"
+                type="number"
+                step="0.01"
+                min="0"
+                required={!editing}
+                value={f.original_price}
+                onChange={(e) => setF({ ...f, original_price: e.target.value })}
               />
             </div>
             {f.images.length > 0 && (

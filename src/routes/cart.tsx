@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Your Cart — cuddlekids.lb" },
       { name: "description", content: "Review the items in your cuddlekidslb cart." },
       { property: "og:title", content: "Your Cart — cuddlekids.lb" },

@@ -42,6 +42,8 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "cuddlekids.lb — Soft Baby Clothes, Cash on Delivery" },
       { name: "description", content: "Shop organic bodysuits, pajamas and knits for babies. Pay cash when it arrives." },
       { property: "og:title", content: "cuddlekids.lb — Soft Baby Clothes" },

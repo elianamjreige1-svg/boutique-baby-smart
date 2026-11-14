@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Store confidential product prices in a separate admin-RLS table, never in public products; shopper SELECT queries must not reveal them.
+- Save product details and confidential prices through the security-invoker save_admin_product RPC so both writes commit atomically.
