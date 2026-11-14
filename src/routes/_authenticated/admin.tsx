@@ -557,7 +557,7 @@ const isAllAges = f.ages.includes("All ages");
           <table className="w-full text-sm">
             <thead className="bg-muted text-left">
               <tr>
-                <th className="p-3">Product</th>
+                <th className="p-3 text-center whitespace-nowrap">Product</th>
                 <th className="p-3 pr-6">Price</th>
                 <th className="p-3 pl-6">Stock</th>
                 <th className="p-3 text-center whitespace-nowrap">Original price</th>
