@@ -24,6 +24,8 @@ import { originalPriceError } from "@/lib/original-price";
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Admin — cuddlekidslb" },
       { name: "description", content: "Manage products, categories and orders." },
       { property: "og:title", content: "Admin — cuddlekidslb" },

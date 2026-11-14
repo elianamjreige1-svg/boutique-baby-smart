@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/admin_/login")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Admin Login — cuddlekidslb" },
       { name: "description", content: "Administrator sign in for cuddlekidslb." },
       { property: "og:title", content: "Admin Login — cuddlekidslb" },
