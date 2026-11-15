@@ -64,6 +64,13 @@
       "when": 1794684832390,
       "tag": "0008_optional_existing_original_price",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794778350698,
+      "tag": "0009_optional_original_price_on_create",
+      "breakpoints": true
     }
   ]
 }

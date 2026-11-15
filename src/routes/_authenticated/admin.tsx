@@ -463,7 +463,7 @@ function Products() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    const priceError = originalPriceError(f.original_price, !editing);
+    const priceError = originalPriceError(f.original_price);
     if (priceError) {
       toast.error(priceError);
       return;
@@ -625,7 +625,7 @@ const isAllAges = f.ages.includes("All ages");
               <Textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} />
             </div>
             <div className="space-y-1">
-              <Label>Price</Label>
+              <Label>Price ($)</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -635,13 +635,12 @@ const isAllAges = f.ages.includes("All ages");
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="original-price">Original price ($)</Label>
+              <Label htmlFor="original-price">Original price ($) (optional)</Label>
               <Input
                 id="original-price"
                 type="number"
                 step="0.01"
                 min="0"
-                required={!editing}
                 value={f.original_price}
                 onChange={(e) => setF({ ...f, original_price: e.target.value })}
               />
