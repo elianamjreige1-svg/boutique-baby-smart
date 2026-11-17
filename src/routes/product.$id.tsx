@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { money, useCart } from "@/lib/cart";
 import { availableFor, checkStock } from "@/lib/stock";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { trackPixel } from "@/lib/meta-pixel";
 
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
@@ -32,6 +34,9 @@ function ProductPage() {
     queryKey: ["product", id],
     queryFn: async () => (await supabase.from("products").select("*").eq("id", id).maybeSingle()).data,
   });
+  useEffect(() => {
+    if (p) trackPixel("ViewContent", { content_ids: [p.id], content_name: p.name, content_type: "product", value: Number(p.price), currency: "USD" });
+  }, [p?.id]);
 
   if (isLoading) return <p className="p-12 text-center text-muted-foreground">Loading…</p>;
   if (!p) return <p className="p-12 text-center">Product not found. <Link to="/" className="text-primary underline">Back to shop</Link></p>;

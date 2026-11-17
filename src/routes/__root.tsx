@@ -15,6 +15,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CartProvider } from "@/lib/cart";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toaster } from "@/components/ui/sonner";
+import { useLocation } from "@tanstack/react-router";
+import { trackPixel } from "@/lib/meta-pixel";
 
 function NotFoundComponent() {
   return (
@@ -125,6 +127,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useLocation({ select: (l) => l.pathname });
+  useEffect(() => {
+    trackPixel("PageView");
+  }, [pathname]);
 
   return (
     <QueryClientProvider client={queryClient}>

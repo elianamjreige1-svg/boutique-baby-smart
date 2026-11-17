@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { trackPixel } from "@/lib/meta-pixel";
 import { toast } from "sonner";
 import { Banknote } from "lucide-react";
 import { money, useCart } from "@/lib/cart";
@@ -34,6 +35,10 @@ function Checkout() {
   const [busy, setBusy] = useState(false);
   const { data: fee = 0 } = useDeliveryFee();
   const grand = total + fee;
+  useEffect(() => {
+    if (items.length) trackPixel("AddPaymentInfo", { value: total, currency: "USD" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [f, setF] = useState({ customer_name: "", phone: "", address: "", city: "", notes: "" });
 
   if (items.length === 0)
@@ -57,6 +62,7 @@ function Checkout() {
       const res = await place({
         data: { ...f, items: items.map((i) => ({ productId: i.productId, size: i.size, quantity: i.quantity })) },
       });
+      sessionStorage.setItem("ck_purchase", JSON.stringify({ id: res.id, value: grand }));
       clear();
       navigate({ to: "/order-success", search: { id: res.id } });
     } catch (err) {

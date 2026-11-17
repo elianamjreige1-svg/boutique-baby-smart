@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { trackPixel } from "@/lib/meta-pixel";
 import { toast } from "sonner";
 import { cartStockProblems, showStockAlert } from "@/lib/stock-alert";
 import { Trash2 } from "lucide-react";
@@ -24,12 +25,19 @@ function CartPage() {
   const { items, update, remove, total } = useCart();
   const navigate = useNavigate();
   const [checking, setChecking] = useState(false);
+  useEffect(() => {
+    if (items.length) trackPixel("AddToCart", { value: total, currency: "USD", num_items: items.length });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const goCheckout = async () => {
     setChecking(true);
     try {
       const problems = await cartStockProblems(items);
       if (problems.length) showStockAlert(problems);
-      else navigate({ to: "/checkout" });
+      else {
+        trackPixel("InitiateCheckout", { value: total, currency: "USD", num_items: items.length });
+        navigate({ to: "/checkout" });
+      }
     } catch {
       toast.error("Could not check stock, please try again");
     } finally {

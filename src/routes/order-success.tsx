@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { trackPixel } from "@/lib/meta-pixel";
 
 export const Route = createFileRoute("/order-success")({
   validateSearch: z.object({ id: z.string().optional() }),
@@ -19,6 +21,13 @@ export const Route = createFileRoute("/order-success")({
 
 function Success() {
   const { id } = Route.useSearch();
+  useEffect(() => {
+    const raw = sessionStorage.getItem("ck_purchase");
+    if (!raw) return;
+    sessionStorage.removeItem("ck_purchase");
+    const { value } = JSON.parse(raw) as { value: number };
+    trackPixel("Purchase", { value: Number(value) || 0, currency: "USD" });
+  }, []);
   return (
     <div className="mx-auto max-w-lg px-4 py-24 text-center">
       <h1 className="text-4xl font-semibold">Thank you! </h1>
