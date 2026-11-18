@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { trackPixel } from "@/lib/meta-pixel";
 import { toast } from "sonner";
 import { cartStockProblems, showStockAlert } from "@/lib/stock-alert";
@@ -25,10 +25,12 @@ function CartPage() {
   const { items, update, remove, total } = useCart();
   const navigate = useNavigate();
   const [checking, setChecking] = useState(false);
+  const cartTracked = useRef(false);
   useEffect(() => {
-    if (items.length) trackPixel("AddToCart", { value: total, currency: "USD", num_items: items.length });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!items.length || cartTracked.current) return;
+    cartTracked.current = true;
+    trackPixel("AddToCart", { value: total, currency: "USD", num_items: items.reduce((sum, item) => sum + item.quantity, 0) });
+  }, [items, total]);
   const goCheckout = async () => {
     setChecking(true);
     try {

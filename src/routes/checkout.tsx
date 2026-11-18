@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { trackPixel } from "@/lib/meta-pixel";
 import { toast } from "sonner";
 import { Banknote } from "lucide-react";
@@ -35,10 +35,12 @@ function Checkout() {
   const [busy, setBusy] = useState(false);
   const { data: fee = 0 } = useDeliveryFee();
   const grand = total + fee;
+  const paymentTracked = useRef(false);
   useEffect(() => {
-    if (items.length) trackPixel("AddPaymentInfo", { value: total, currency: "USD" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!items.length || paymentTracked.current) return;
+    paymentTracked.current = true;
+    trackPixel("AddPaymentInfo", { value: total, currency: "USD" });
+  }, [items, total]);
   const [f, setF] = useState({ customer_name: "", phone: "", address: "", city: "", notes: "" });
 
   if (items.length === 0)
