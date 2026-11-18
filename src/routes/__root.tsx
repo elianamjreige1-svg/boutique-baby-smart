@@ -17,6 +17,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Toaster } from "@/components/ui/sonner";
 import { useLocation } from "@tanstack/react-router";
 import { trackPixel } from "@/lib/meta-pixel";
+import consentDefaults from "@/lib/consent-defaults.js?raw";
+import { CookieConsent } from "@/components/CookieConsent";
 
 function NotFoundComponent() {
   return (
@@ -80,6 +82,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
+    scripts: [{ children: consentDefaults }],
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -144,6 +147,7 @@ function RootComponent() {
   <p className="whitespace-nowrap text-[clamp(0.65rem,3.2vw,0.875rem)] leading-tight">
     © 2026 CUDDLEKIDS.LB | Developed by K. Ishak
   </p>
+  <CookieConsent />
 </footer>
         <Toaster />
       </CartProvider>
