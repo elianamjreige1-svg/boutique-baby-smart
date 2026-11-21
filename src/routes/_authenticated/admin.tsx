@@ -1,12 +1,12 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { PHOTO_URL_PREFIX, photoPath } from "@/lib/product-photo";
 import { deleteProductPhotos } from "@/lib/product-photo.functions";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { optimizeImage, formatBytes, blobToDataUrl, type Optimized } from "@/lib/image-optimize";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, Search, X } from "lucide-react";
+import { Pencil, Trash2, Plus, Search, X, ArrowLeftRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useSession } from "@/lib/use-session";
@@ -20,6 +20,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { originalPriceError } from "@/lib/original-price";
+import { ORDER_STATUSES } from "@/lib/accounting";
+import { accountingQueryKey } from "@/lib/accounting.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -36,11 +38,12 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
 });
 
-const STATUSES = ["pending", "confirmed", "shipped"];
+const STATUSES = ORDER_STATUSES;
 const ORDER_TINT: Record<string, string> = {
   pending: "bg-order-pending border-order-pending-border",
   confirmed: "bg-order-confirmed border-order-confirmed-border",
   shipped: "bg-order-shipped border-order-shipped-border",
+  "picked-up": "bg-order-shipped border-order-shipped-border",
 };
 
 // Multi-word "contains" search across a row's fields (case-insensitive).
@@ -82,7 +85,10 @@ function Admin() {
   if (!isAdmin) return <p className="p-12 text-center">You don't have admin access.</p>;
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="mb-6 text-4xl font-semibold">Admin Panel</h1>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h1 className="text-4xl font-semibold">Admin Panel</h1>
+        <Button variant="outline" asChild><Link to="/in-out"><ArrowLeftRight className="h-4 w-4" />In/Out</Link></Button>
+      </div>
       <Tabs defaultValue="orders">
         <TabsList>
           <TabsTrigger value="orders">Orders</TabsTrigger>
@@ -909,7 +915,10 @@ function Orders() {
   });
 
   const [q, setQ] = useState("");
-  const refresh = () => qc.invalidateQueries({ queryKey: ["admin-orders"] });
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: accountingQueryKey });
+    return qc.invalidateQueries({ queryKey: ["admin-orders"] });
+  };
 
   const visible = orders.filter((o) =>
     matches(q, [
@@ -927,12 +936,13 @@ function Orders() {
   const setStatus = async (id: string, status: string) => {
     const o = orders.find((x) => x.id === id);
     const now = new Date().toISOString();
-    const patch: { status: string; confirmed_at?: string; shipped_at?: string } = { status };
+    const patch: { status: string; confirmed_at?: string; shipped_at?: string; picked_up_at?: string } = { status };
     if (status === "confirmed" && !o?.confirmed_at) patch.confirmed_at = now;
     if (status === "shipped") {
       if (!o?.shipped_at) patch.shipped_at = now;
       if (!o?.confirmed_at) patch.confirmed_at = now;
     }
+    if (status === "picked-up" && !o?.picked_up_at) patch.picked_up_at = now;
     const { error } = await supabase.from("orders").update(patch).eq("id", id);
     if (error) {
       toast.error(error.message);
@@ -955,8 +965,8 @@ function Orders() {
 //cancel orders
     const cancelOrder = async (o: (typeof orders)[number]) => {
     // 1. Guard against shipped orders
-    if (o.status === "shipped") {
-      toast.error("Shipped orders cannot be cancelled.");
+    if (o.status === "shipped" || o.status === "picked-up") {
+      toast.error("Shipped or picked-up orders cannot be cancelled.");
       return;
     }
 
@@ -1040,7 +1050,7 @@ function Orders() {
   </p>
 
   {/* Right: Cancel Button */}
-  {o.status !== "shipped" && (
+  {o.status !== "shipped" && o.status !== "picked-up" && (
     <Button
       variant="ghost"
       size="sm"
@@ -1053,7 +1063,7 @@ function Orders() {
   )}
 
   {/* Right: Delete Button (shipped orders only) */}
-  {o.status === "shipped" && (
+  {(o.status === "shipped" || o.status === "picked-up") && (
     <Button
       variant="ghost"
       size="icon"
@@ -1078,6 +1088,7 @@ function Orders() {
             <li>Pending: {new Date(o.created_at).toLocaleString()}</li>
             {o.confirmed_at && <li>Confirmed: {new Date(o.confirmed_at).toLocaleString()}</li>}
             {o.shipped_at && <li>Shipped: {new Date(o.shipped_at).toLocaleString()}</li>}
+            {o.picked_up_at && <li>Picked-up: {new Date(o.picked_up_at).toLocaleString()}</li>}
           </ul>
           <div className="mt-3">
             <select

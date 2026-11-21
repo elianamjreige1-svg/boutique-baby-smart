@@ -12,3 +12,5 @@
 - Store confidential product prices in a separate admin-RLS table, never in public products; shopper SELECT queries must not reveal them.
 - Save product details and confidential prices through the security-invoker save_admin_product RPC so both writes commit atomically.
 - Use the shared per-purpose consent module and first-head defaults for privacy decisions; gate every Meta initialization/event on advertising permission and revoke on cross-tab changes to prevent consent bypasses.
+- Derive income from eligible order totals plus an admin-only overall adjustment; editing sets the adjustment atomically, never changing order totals or using confidential product costs.
+- Keep expense records admin-only and access accounting through authenticated, role-checked server functions so shoppers cannot read or mutate finances.

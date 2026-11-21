@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounting_expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      accounting_settings: {
+        Row: {
+          id: number
+          income_adjustment: number
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          income_adjustment?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          income_adjustment?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -31,6 +70,32 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      order_income_overrides: {
+        Row: {
+          amount: number
+          order_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          order_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          order_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_income_overrides_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
@@ -88,6 +153,7 @@ export type Database = {
           notes: string
           payment_method: string
           phone: string
+          picked_up_at: string | null
           shipped_at: string | null
           status: string
           total: number
@@ -102,6 +168,7 @@ export type Database = {
           notes?: string
           payment_method?: string
           phone: string
+          picked_up_at?: string | null
           shipped_at?: string | null
           status?: string
           total?: number
@@ -116,6 +183,7 @@ export type Database = {
           notes?: string
           payment_method?: string
           phone?: string
+          picked_up_at?: string | null
           shipped_at?: string | null
           status?: string
           total?: number
@@ -261,6 +329,7 @@ export type Database = {
         Args: { _original_price?: number; _product: Json; _product_id?: string }
         Returns: string
       }
+      set_income_total: { Args: { _total: number }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"

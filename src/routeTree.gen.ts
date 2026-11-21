@@ -17,6 +17,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedInOutRouteImport } from './routes/_authenticated/in-out'
 import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as ApiPublicProductImageSplatRouteImport } from './routes/api/public/product-image.$'
@@ -60,6 +61,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInOutRoute = AuthenticatedInOutRouteImport.update({
+  id: '/in-out',
+  path: '/in-out',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin_/login',
   path: '/admin/login',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/order-success': typeof OrderSuccessRoute
   '/privacy': typeof PrivacyRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/in-out': typeof AuthenticatedInOutRoute
   '/admin/login': typeof AdminLoginRoute
   '/product/$id': typeof ProductIdRoute
   '/api/public/product-image/$': typeof ApiPublicProductImageSplatRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/order-success': typeof OrderSuccessRoute
   '/privacy': typeof PrivacyRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/in-out': typeof AuthenticatedInOutRoute
   '/admin/login': typeof AdminLoginRoute
   '/product/$id': typeof ProductIdRoute
   '/api/public/product-image/$': typeof ApiPublicProductImageSplatRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/order-success': typeof OrderSuccessRoute
   '/privacy': typeof PrivacyRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/in-out': typeof AuthenticatedInOutRoute
   '/admin_/login': typeof AdminLoginRoute
   '/product/$id': typeof ProductIdRoute
   '/api/public/product-image/$': typeof ApiPublicProductImageSplatRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/order-success'
     | '/privacy'
     | '/admin'
+    | '/in-out'
     | '/admin/login'
     | '/product/$id'
     | '/api/public/product-image/$'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/order-success'
     | '/privacy'
     | '/admin'
+    | '/in-out'
     | '/admin/login'
     | '/product/$id'
     | '/api/public/product-image/$'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/order-success'
     | '/privacy'
     | '/_authenticated/admin'
+    | '/_authenticated/in-out'
     | '/admin_/login'
     | '/product/$id'
     | '/api/public/product-image/$'
@@ -226,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/in-out': {
+      id: '/_authenticated/in-out'
+      path: '/in-out'
+      fullPath: '/in-out'
+      preLoaderRoute: typeof AuthenticatedInOutRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/admin_/login': {
       id: '/admin_/login'
       path: '/admin/login'
@@ -252,10 +271,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedInOutRoute: typeof AuthenticatedInOutRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedInOutRoute: AuthenticatedInOutRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
