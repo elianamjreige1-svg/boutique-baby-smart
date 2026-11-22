@@ -1089,7 +1089,7 @@ function Orders() {
             <li>Pending: {new Date(o.created_at).toLocaleString()}</li>
             {o.confirmed_at && <li>Confirmed: {new Date(o.confirmed_at).toLocaleString()}</li>}
             {o.shipped_at && <li>Shipped: {new Date(o.shipped_at).toLocaleString()}</li>}
-            {o.picked_up_at && <li>Picked-up: {new Date(o.picked_up_at).toLocaleString()}</li>}
+            {o.picked_up_at && <li>Picked Up: {new Date(o.picked_up_at).toLocaleString()}</li>}
           </ul>
           <div className="mt-3">
             <select
@@ -1098,10 +1098,11 @@ function Orders() {
               onChange={(e) => setStatus(o.id, e.target.value)}
             >
               {STATUSES.map((s) => (
-                <option key={s} value={s}>
-    {s.charAt(0).toUpperCase() + s.slice(1)}
+  <option key={s} value={s}>
+    {s === "picked-up" ? "Picked Up" : s.charAt(0).toUpperCase() + s.slice(1)}
   </option>
-              ))}
+))}
+
             </select>
           </div>
           <ul className="mt-3 space-y-1 border-t border-border pt-3 text-sm">
