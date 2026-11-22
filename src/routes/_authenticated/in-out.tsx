@@ -39,6 +39,10 @@ type Editor = { kind: "income"; amount: string } | { kind: "expense"; id?: strin
 function Accounting() {
   const { data } = useSuspenseQuery(accountingOptions);
   const qc = useQueryClient();
+  
+    const { data } = useSuspenseQuery(accountingOptions);
+    const net = data.totalIncome - data.totalExpenses;
+
   const saveTotal = useServerFn(saveIncome);
   const saveOutcome = useServerFn(saveExpense);
   const removeOutcome = useServerFn(deleteExpense);
@@ -84,7 +88,17 @@ function Accounting() {
       <Button variant="outline" asChild><Link to="/admin"><ArrowLeft className="h-4 w-4" />Admin Panel</Link></Button>
     </header>
     <Tabs defaultValue="income">
-      <TabsList><TabsTrigger value="income">Income</TabsTrigger><TabsTrigger value="outcomes">Outcomes</TabsTrigger></TabsList>
+            <div className="flex items-center justify-between gap-2">
+       
+              <TabsList>
+          <TabsTrigger value="income">Income</TabsTrigger>
+          <TabsTrigger value="outcomes">Outcomes</TabsTrigger>
+        </TabsList>
+        <span className={`text-xl font-bold ${net >= 0 ? "text-green-600" : "text-red-600"}`}>
+          {net >= 0 ? `+${money(net)}` : `-${money(Math.abs(net))}`}
+        </span>
+      </div>
+
       <TabsContent value="income">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border py-6">
           <div><p className="text-sm text-muted-foreground">Total income</p><p className="mt-1 text-3xl font-semibold" data-testid="total-income">{money(data.totalIncome)}</p></div>
