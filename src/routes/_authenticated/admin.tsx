@@ -43,7 +43,8 @@ const ORDER_TINT: Record<string, string> = {
   pending: "bg-order-pending border-order-pending-border",
   confirmed: "bg-order-confirmed border-order-confirmed-border",
   shipped: "bg-order-shipped border-order-shipped-border",
-  "picked-up": "bg-order-shipped border-order-shipped-border",
+    "picked-up": "bg-order-picked-up border-order-picked-up-border",
+
 };
 
 // Multi-word "contains" search across a row's fields (case-insensitive).
