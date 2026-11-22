@@ -40,7 +40,7 @@ function Accounting() {
   const { data } = useSuspenseQuery(accountingOptions);
   const qc = useQueryClient();
   
-    const { data } = useSuspenseQuery(accountingOptions);
+ 
     const net = data.totalIncome - data.totalExpenses;
 
   const saveTotal = useServerFn(saveIncome);
