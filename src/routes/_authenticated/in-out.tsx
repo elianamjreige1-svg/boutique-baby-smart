@@ -107,7 +107,10 @@ function Accounting() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border text-muted-foreground"><tr><th className="p-3">Order</th><th className="p-3">Customer</th><th className="p-3">Status</th><th className="p-3 text-right whitespace-nowrap">Value ($)</th></tr></thead>
-            <tbody>{data.income.map((row) => <tr key={row.id} className="border-b border-border"><td className="p-3 whitespace-nowrap">#{row.id.slice(0, 8)}</td><td className="p-3">{row.customer_name}</td><td className="p-3 capitalize whitespace-nowrap">{row.status}</td><td className="p-3 text-right">{money(row.income)}</td></tr>)}</tbody>
+            <tbody>{data.income.map((row) => <tr key={row.id} className="border-b border-border"><td className="p-3 whitespace-nowrap">#{row.id.slice(0, 8)}</td><td className="p-3">{row.customer_name}</td><td className="p-3 capitalize whitespace-nowrap">
+  {row.status === "picked-up" ? "Picked Up" : row.status}
+</td>
+<td className="p-3 text-right">{money(row.income)}</td></tr>)}</tbody>
           </table>
         </div>
         {!data.income.length && <p className="py-8 text-center text-muted-foreground">No income orders yet.</p>}
