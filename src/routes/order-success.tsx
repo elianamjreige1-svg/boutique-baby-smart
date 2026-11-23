@@ -35,9 +35,9 @@ function Success() {
         Your order is placed, and you'll pay in cash on delivery.
       </p>
       <p className="mt-3 text-sm text-muted-foreground">
-        Your custom message goes here!
+       You will receive your order within 1 to 4 working days.
       </p>
-You will receive your order within 1 to 4 working days.
+
       
       {id && <p className="mt-2 text-sm text-muted-foreground">Order #{id.slice(0, 8)}</p>}
       <Button asChild className="mt-8 rounded-full"><Link to="/">Keep shopping</Link></Button>
