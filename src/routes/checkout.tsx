@@ -101,7 +101,7 @@ function Checkout() {
           <Banknote className="h-6 w-6 text-primary" />
           <div>
             <p className="font-semibold">Cash on delivery</p>
-            <p className="text-sm text-muted-foreground">🚚 Estimated delivery in 3-5 working days.</p>
+            <p className="text-sm text-muted-foreground">🚚 Estimated delivery in 1-4 working days.</p>
           </div>
         </div>
         <Button type="submit" size="lg" className="w-full rounded-full" disabled={busy}>
