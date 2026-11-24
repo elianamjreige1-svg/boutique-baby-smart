@@ -30,7 +30,7 @@ function Success() {
   }, []);
   return (
     <div className="mx-auto max-w-lg px-4 py-24 text-center">
-      <h1 className="text-4xl font-semibold">Thank you! </h1>
+      <h1 className="text-4xl font-semibold">Thank you for shopping from cuddlekids.lb! </h1>
       <p className="mt-4 text-muted-foreground">
         Your order is placed, and you'll pay in cash on delivery.
       </p>
