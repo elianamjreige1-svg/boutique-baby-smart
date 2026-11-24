@@ -33,8 +33,10 @@ function Checkout() {
   const place = useServerFn(placeOrder);
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
-  const { data: fee = 0 } = useDeliveryFee();
+   const { data: rawFee = 0 } = useDeliveryFee();
+  const fee = total >= 100 ? 0 : rawFee;
   const grand = total + fee;
+
   const paymentTracked = useRef(false);
   useEffect(() => {
     if (!items.length || paymentTracked.current) return;
@@ -118,7 +120,11 @@ function Checkout() {
         </ul>
         <div className="mt-4 space-y-1 border-t border-border pt-4 text-sm">
           <div className="flex justify-between"><span>Subtotal</span><span>{money(total)}</span></div>
-          <div className="flex justify-between"><span>Delivery</span><span>{money(fee)}</span></div>
+          <div className="flex justify-between">
+    <span>Delivery</span>
+    <span>{total >= 100 ? <span className="font-semibold text-green-600">Free</span> : money(fee)}</span>
+  </div>
+
         </div>
         <div className="mt-2 flex justify-between font-semibold">
           <span>Total to pay</span><span>{money(grand)}</span>
