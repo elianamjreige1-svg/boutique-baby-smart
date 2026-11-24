@@ -185,7 +185,10 @@ const setAge = (newAge: string | null) => {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
      <section className="mb-12 min-w-0 rounded-3xl bg-accent px-4 py-10 text-center sm:px-8 sm:py-14">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary"></p>
+       <p className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs sm:text-sm font-semibold tracking-wide text-primary">
+  🚚 Unlock free delivery on orders over 99$
+</p>
+
       <h1 className="mx-auto w-full max-w-2xl min-w-0 font-hero text-accent-foreground">
   <span className="relative -top-2 mb-1 block text-lg font-medium tracking-widest text-muted-foreground md:text-2xl">
     WELCOME TO
