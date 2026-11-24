@@ -183,10 +183,11 @@ const setAge = (newAge: string | null) => {
   );
 */
   return (
-     <p className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs sm:text-sm font-semibold tracking-wide text-primary">
-  🚚 Unlock free delivery on orders over 99$
-</p>
+   
     <div className="mx-auto max-w-6xl px-4 py-12">
+        <p className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs sm:text-sm font-semibold tracking-wide text-primary">
+  Unlock free delivery on orders over 99$
+</p>
      <section className="mb-12 min-w-0 rounded-3xl bg-accent px-4 py-10 text-center sm:px-8 sm:py-14">
       
 
