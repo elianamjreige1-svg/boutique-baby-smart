@@ -185,7 +185,7 @@ const setAge = (newAge: string | null) => {
   return (
    
     <div className="mx-auto max-w-6xl px-4 pt-4 pb-12">
-       <p className="mb-4 w-full rounded-2xl bg-primary/10 px-4 py-2.5 text-center text-xs sm:text-sm font-semibold tracking-wide text-primary">
+       <p className="mb-4 w-full rounded-2xl bg-primary/10 px-4 py-2.5 text-center text-sm sm:text-base font-semibold tracking-wide text-primary">
   Unlock free delivery on orders over 99$
 </p>
 
